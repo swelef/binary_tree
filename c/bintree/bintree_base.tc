@@ -1,0 +1,29 @@
+//        Copyright Vladimir Marko 2005 - 2010.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
+#include "bintree_base.h"
+#include "bintree_root.h"
+
+#include "bintree_impl_begin.h"
+
+#if defined(BINTREE_POINTER)
+
+//
+// tree initialization function
+//
+
+BINTREE_LKG_ void BINTREE_MANGLE_(init)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_)
+{
+    BINTREE_FN_(_,set_top)(BINTREE_TRAITS_ARG root_,BINTREE_NULL);
+    BINTREE_FN_(_,set_front)(BINTREE_TRAITS_ARG root_,root_);
+    BINTREE_FN_(_,set_back)(BINTREE_TRAITS_ARG root_,root_);
+        //< this line seems to be unnecessary,
+        //  but it avoids UB when copying the tree
+}
+
+#endif // defined(BINTREE_POINTER)
+
+#include "bintree_impl_end.h"

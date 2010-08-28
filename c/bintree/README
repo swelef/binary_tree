@@ -1,0 +1,199 @@
+//        Copyright Vladimir Marko 2009 - 2010.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
+/*
+  BINTREE C library
+  =================
+
+
+  OVERVIEW
+
+  The bintree library is a C "template" library implementing AVL and red-black
+  tree core algorithms. Since pure C has no true template facility, it is
+  parametrised by several BINTREE_* macros, see bintree_base. It works with a
+  very abstract notion of "pointers" and "balance" (AVL trees) or "colors"
+  (red-black trees) to allow the construction of these trees in a wide range
+  of situations. Examples include a tree within an array with the "pointers"
+  being indexes limited to a certain number of bits, or a tree in a huge file
+  where the "pointers" would be file offsets.
+
+  This library can be used to create replacement containers for the C++
+  standard associative containers or the key-based ordered containers of
+  Boost.MultiIndex. Though it may be used in C++, there are usually better
+  tools to accomplish the task at hand, such as the aforementioned containers.
+
+  The simplest use is to define structs for nodes and BINTREE_* macros as
+  described in bintree_base, bintree_search and either avltree_modify or
+  rbtree_modify. Then avltree.h or rbtree.h is used for declaring the interface
+  and avltree.tc or rbtree.tc is used for defining the functions.
+
+  A program that needs to use different trees may define the BINTREE_* macros,
+  include bintree files with the tree declarations and/or definitions, undefine
+  the BINTREE_* macros and include guards ("bintree_undef_traits.h" does
+  exactly that) and start again. However, care must be taken that the bintree
+  implementation files are included with the appropriate BINTREE_* macro sets
+  corresponding to those used in header files (assuming there are declarations
+  exposed in header files). A careful implementation may even share some
+  functions between different trees; for example if they share the same links,
+  bintree_{root,traverse_base,balance,base,traverse} could be shared even if
+  they use a different key and a different rebalancing technique (i.e. one is
+  an AVL tree, the other one a red-black tree). See UNIT DEPENDENCIES below for
+  some additional information.
+
+
+  SIMPLE EXAMPLE:
+
+  The header file "mytree.h" contains
+
+    #include <stddef.h> // for NULL
+    // While in C++ we'd use derivaton and safe static_cast, in C we're left
+    // with casting to the type of the first member and back. For simplicity,
+    // we'll use only the node base (mynode) that will serve as the root and
+    // the most derived node (mymapnode) without any additional classes in
+    // between.
+    typedef struct mynode{
+        struct mynode* left;
+        struct mynode* right;
+        struct mynode* parent;
+    } mynode;
+    typedef struct mymapnode{
+        mynode n_;
+        int balance;
+        int key;
+        int value;
+    } mymapnode;
+    // basic BINTREE definitions
+    #define BINTREE_PREFIX mytree_
+    #define BINTREE_TRAITS_PARAM
+    #define BINTREE_TRAITS_ARG
+    // topology definitions
+    #define BINTREE_POINTER mynode*
+    #define BINTREE_NULL NULL
+    #define BINTREE_LEFT(n) ((n)->left)
+    #define BINTREE_RIGHT(n) ((n)->right)
+    #define BINTREE_PARENT(n) ((n)->parent)
+    #define BINTREE_SET_LEFT(n,x) ((n)->left=(x))
+    #define BINTREE_SET_RIGHT(n,x) ((n)->right=(x))
+    #define BINTREE_SET_PARENT(n,x) ((n)->parent=(x))
+    // topology definitions, const versions (optional)
+    #define BINTREE_CONST_POINTER const mynode*
+    #define BINTREE_CLEFT(n) ((n)->left)
+    #define BINTREE_CRIGHT(n) ((n)->right)
+    #define BINTREE_CPARENT(n) ((n)->parent)
+    // AVL balance definitions
+    #define BINTREE_BALANCE_TYPE int
+    #define BINTREE_LEFT_HEAVY -1
+    #define BINTREE_RIGHT_HEAVY 1
+    #define BINTREE_BALANCED 0
+    #define BINTREE_BALANCE(n) (((mymapnode*)(n))->balance)
+    #define BINTREE_SET_BALANCE(n,x) (((mymapnode*)(n))->balance=(x))
+    // key-related defintions
+    #define BINTREE_KEY_TYPE int
+    #define BINTREE_CONST_KEY_TYPE const int
+    #define BINTREE_KEY(n) (((mymapnode*)(n))->key)
+    #define BINTREE_COMPARE(k1,k2) ((k1)<(k2))
+    #define BINTREE_COMPARE_PARAM
+    #define BINTREE_COMPARE_ARG
+    // include bintree/avltree.h
+    #include "bintree/avltree.h"
+
+  and the source file mytree.c contains
+
+    #include "mytree.h"
+    #include "bintree/avltree.tc"
+
+
+  TYPE DEFINITIONS
+
+  The only type defined by the bintree templates is pos_type (prefixed with the
+  expansion of the BINTREE_PREFIX macro) in bintree_base.
+
+
+  FUNCTIONS BY UNIT
+
+  All functions are prefixed by the expansion of the BINTREE_PREFIX
+  macro. '{' and '}' denote expansion as in 'sh' or 'bash'.
+
+    bintree_root (helper functions):
+        {,c}{front,back,top}
+        set_{front,back,top}
+    bintree_traverse_base (helper functions):
+        {,c}first_{right,left}_parent
+        {,c}{left,right}most_child
+    bintree_balance (helper functions):
+        replace_{left,right}{,_test,_move_child_test}
+        clear_children
+        make_{left,right}_leaf
+        remove_leaf_update_ends
+        replace_both_move_children_test
+        replace_child
+        rotate_{left,right}
+    bintree_base:
+        init
+    bintree_traverse:
+        {,c}{begin,end}
+        {,c}{next,prev}
+    bintree_search:
+        {,c}{find,lower_bound,upper_bound},
+        insert_pos_{equal,unique}{,_hint}
+    avltree_modify:
+        avl_insert
+        avl_erase
+    rbtree_modify:
+        rb_insert
+        rb_erase
+
+
+  UNIT DEPENDENCIES
+
+  For detailed control over the instantiated functions and their
+  linkage it's necessary to know the unit dependencies, so that header
+  and implementation files may be included with the correct definition
+  of BINTREE_LINKAGE, instead of being indirectly included by another
+  file with the wrong one.
+
+  The following list describes the implementation file dependency on
+  header files, except where the dependency of the header file is
+  explicitly mentioned. The dependency of each implementation file on
+  its own header file isn't listed.
+
+    bintree_root.tc (helper functions):
+        n/a
+    bintree_traverse_base.tc (helper functions):
+        n/a
+    bintree_balance.tc (helper functions):
+        bintree_root.h
+    bintree_base.tc:
+        bintree_root.h
+    bintree_traverse.tc:
+        bintree_root.h
+        bintree_traverse_base.h
+    bintree_search.tc:
+        bintree_base.h (bintree_search.h also depends on this)
+        bintree_root.h
+        bintree_traverse_base.h
+    avltree_modify.tc: 
+        bintree_base.h (avltree_modify.h also depends on this)
+        bintree_root.h
+        bintree_traverse_base.h
+        bintree_balance.h
+    rbtree_modify.tc:
+        bintree_base.h (rbtree_modify.h also depends on this)
+        bintree_root.h
+        bintree_traverse_base.h
+        bintree_balance.h
+
+
+  KNOWN ISSUES
+
+  The only known issue is the presence of unused helper functions cfront and
+  cback in bintree_root.tc which have been included for completeness and may
+  cause compiler warnings if they are included (i.e. optional const versions
+  are actually requested) with the "static" linkage (the default). For example,
+  "gcc -Wall" for the example code says
+
+    bintree/bintree_root.tc:83: warning: ‘mytree_cfront’ defined but not used
+    bintree/bintree_root.tc:89: warning: ‘mytree_cback’ defined but not used
+*/

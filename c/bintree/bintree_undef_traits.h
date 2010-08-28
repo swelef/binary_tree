@@ -1,0 +1,55 @@
+//        Copyright Vladimir Marko 2009 - 2010.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
+// non-const/const shared macros
+#undef BINTREE_PREFIX
+#undef BINTREE_TRAITS_PARAM
+#undef BINTREE_TRAITS_ARG
+#undef BINTREE_NULL
+#undef BINTREE_LINKAGE
+// non-const macros
+#undef BINTREE_POINTER
+#undef BINTREE_LEFT
+#undef BINTREE_RIGHT
+#undef BINTREE_PARENT
+#undef BINTREE_SET_LEFT
+#undef BINTREE_SET_RIGHT
+#undef BINTREE_SET_PARENT
+// const macros
+#undef BINTREE_CONST_POINTER
+#undef BINTREE_CLEFT
+#undef BINTREE_CRIGHT
+#undef BINTREE_CPARENT
+// search
+#undef BINTREE_COMPARE_PARAM
+#undef BINTREE_COMPARE_ARG
+#undef BINTREE_COMPARE
+#undef BINTREE_KEY_TYPE
+#undef BINTREE_KEY
+// avl-tree macros
+#undef BINTREE_BALANCE_TYPE
+#undef BINTREE_LEFT_HEAVY
+#undef BINTREE_RIGHT_HEAVY
+#undef BINTREE_BALANCED
+#undef BINTREE_BALANCE
+#undef BINTREE_SET_BALANCE
+// rb-tree macros
+#undef BINTREE_COLOR_TYPE
+#undef BINTREE_RED_COLOR
+#undef BINTREE_BLACK_COLOR
+#undef BINTREE_COLOR
+#undef BINTREE_SET_COLOR
+
+// header guards
+#undef VMARKO_BINTREE_ROOT_H_INCLUDED
+#undef VMARKO_BINTREE_BASE_H_INCLUDED
+#undef VMARKO_BINTREE_TRAVERSE_BASE_H_INCLUDED
+#undef VMARKO_BINTREE_TRAVERSE_H_INCLUDED
+#undef VMARKO_BINTREE_SEARCH_H_INCLUDED
+#undef VMARKO_BINTREE_BALANCE_H_INCLUDED
+#undef VMARKO_AVLTREE_MODIFY_H_INCLUDED
+#undef VMARKO_RBTREE_MODIFY_H_INCLUDED
+#undef VMARKO_AVLTREE_H_INCLUDED
+#undef VMARKO_RBTREE_H_INCLUDED

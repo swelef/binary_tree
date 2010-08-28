@@ -1,0 +1,29 @@
+//        Copyright Vladimir Marko 2005 - 2010.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
+#include "avltree.h"
+
+// helper functions
+
+#if !defined(BINTREE_LINKAGE)
+#define BINTREE_LINKAGE_STATIC_
+#define BINTREE_LINKAGE static
+#endif // !defined(BINTREE_LINKAGE)
+
+#include "bintree_root.tc"
+#include "bintree_traverse_base.tc"
+#include "bintree_balance.tc"
+
+#if defined(BINTREE_LINKAGE_STATIC_)
+#undef BINTREE_LINKAGE_STATIC_
+#undef BINTREE_LINKAGE
+#endif // defined(BINTREE_LINKAGE_STATIC_)
+
+// main interface
+
+#include "bintree_base.tc"
+#include "bintree_traverse.tc"
+#include "bintree_search.tc"
+#include "avltree_modify.tc"

@@ -1,0 +1,115 @@
+//        Copyright Vladimir Marko 2005 - 2010.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
+#include "bintree_traverse_base.h"
+
+#include "bintree_impl_begin.h"
+
+//
+// helper templates for traversal
+//
+
+#define BINTREE_BODY_FIRST_RIGHT_PARENT_(c_) \
+    BINTREE_PTRTYPE_(c_) parent_ = BINTREE_TOPOLOGY_(c_,PARENT)(node_); \
+    while(BINTREE_TOPOLOGY_(c_,LEFT)(parent_)!=node_){ \
+        node_ = parent_; \
+        parent_ = BINTREE_TOPOLOGY_(c_,PARENT)(parent_); \
+    } \
+    return parent_
+
+#define BINTREE_BODY_FIRST_LEFT_PARENT_(c_) \
+    BINTREE_PTRTYPE_(c_) parent_ = BINTREE_TOPOLOGY_(c_,PARENT)(node_); \
+    while(BINTREE_TOPOLOGY_(c_,LEFT)(parent_)==node_){ \
+        node_ = parent_; \
+        parent_ = BINTREE_TOPOLOGY_(c_,PARENT)(parent_); \
+    } \
+    return parent_
+
+#define BINTREE_BODY_LEFTMOST_CHILD_(c_) \
+    BINTREE_PTRTYPE_(c_) left_ = BINTREE_TOPOLOGY_(c_,LEFT)(node_); \
+    while(left_!=BINTREE_NULL){ \
+        node_ = left_; \
+        left_ = BINTREE_TOPOLOGY_(c_,LEFT)(left_); \
+    } \
+    return node_
+
+#define BINTREE_BODY_RIGHTMOST_CHILD_(c_) \
+    BINTREE_PTRTYPE_(c_) right_ = BINTREE_TOPOLOGY_(c_,RIGHT)(node_); \
+    while(right_!=BINTREE_NULL){ \
+        node_ = right_; \
+        right_ = BINTREE_TOPOLOGY_(c_,RIGHT)(right_); \
+    } \
+    return node_
+
+// ----------------------------------------------------------------------------
+// non-const functions
+//
+
+#if defined(BINTREE_POINTER)
+
+BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(first_right_parent)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER node_)
+{
+    BINTREE_BODY_FIRST_RIGHT_PARENT_(_);
+}
+
+BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(first_left_parent)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER node_)
+{
+    BINTREE_BODY_FIRST_LEFT_PARENT_(_);
+}
+
+BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(leftmost_child)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER node_)
+{
+    BINTREE_BODY_LEFTMOST_CHILD_(_);
+}
+
+BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(rightmost_child)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER node_)
+{
+    BINTREE_BODY_RIGHTMOST_CHILD_(_);
+}
+
+#endif // defined(BINTREE_POINTER)
+
+// ----------------------------------------------------------------------------
+// const functions
+//
+
+#if defined(BINTREE_CONST_POINTER)
+
+BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(cfirst_right_parent)(
+        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER node_)
+{
+    BINTREE_BODY_FIRST_RIGHT_PARENT_(_);
+}
+
+BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(cfirst_left_parent)(
+        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER node_)
+{
+    BINTREE_BODY_FIRST_LEFT_PARENT_(_);
+}
+
+BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(cleftmost_child)(
+        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER node_)
+{
+    BINTREE_BODY_LEFTMOST_CHILD_(_);
+}
+
+BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(crightmost_child)(
+        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER node_)
+{
+    BINTREE_BODY_RIGHTMOST_CHILD_(_);
+}
+
+#endif // defined(BINTREE_CONST_POINTER)
+
+#undef BINTREE_BODY_RIGHTMOST_CHILD_
+#undef BINTREE_BODY_LEFTMOST_CHILD_
+#undef BINTREE_BODY_FIRST_LEFT_PARENT_
+#undef BINTREE_BODY_FIRST_RIGHT_PARENT_
+
+#include "bintree_impl_end.h"

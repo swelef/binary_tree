@@ -1,0 +1,227 @@
+//        Copyright Vladimir Marko 2005 - 2010.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
+#include "bintree_base.h"
+#include "avltree_modify.h"
+#include "bintree_root.h"
+#include "bintree_traverse_base.h"
+#include "bintree_balance.h"
+
+#include "bintree_impl_begin.h"
+
+#if defined(BINTREE_POINTER)
+
+static void BINTREE_MANGLE_(avl_insert_fixup_mixed)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER newparent_,BINTREE_POINTER left_,
+        BINTREE_POINTER right_)
+{
+    BINTREE_FN_(_,replace_both_move_children_test)(BINTREE_TRAITS_ARG newparent_,left_,right_);
+    BINTREE_BALANCE_TYPE balance_ = BINTREE_BALANCE(newparent_);
+    if(balance_==BINTREE_BALANCED){
+        BINTREE_SET_BALANCE(left_,BINTREE_BALANCED);
+        BINTREE_SET_BALANCE(right_,BINTREE_BALANCED);
+    }else{
+        if(balance_==BINTREE_LEFT_HEAVY){
+             BINTREE_SET_BALANCE(left_,BINTREE_BALANCED);
+             BINTREE_SET_BALANCE(right_,BINTREE_RIGHT_HEAVY);
+        }else{
+             BINTREE_SET_BALANCE(left_,BINTREE_LEFT_HEAVY);
+             BINTREE_SET_BALANCE(right_,BINTREE_BALANCED);
+        }
+        BINTREE_SET_BALANCE(newparent_,BINTREE_BALANCED);
+        }
+    }
+
+static void BINTREE_MANGLE_(avl_insert_fixup_left)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER parent_,BINTREE_POINTER node_)
+{
+    if(BINTREE_BALANCE(node_)==BINTREE_LEFT_HEAVY){
+        BINTREE_FN_(_,rotate_right)(BINTREE_TRAITS_ARG parent_,node_);
+        BINTREE_SET_BALANCE(parent_,BINTREE_BALANCED);
+        BINTREE_SET_BALANCE(node_,BINTREE_BALANCED);
+    }else{
+        BINTREE_POINTER newparent_ = BINTREE_RIGHT(node_);
+        BINTREE_FN_(_,replace_child)(BINTREE_TRAITS_ARG parent_,newparent_);
+        BINTREE_FN_(_,avl_insert_fixup_mixed)(BINTREE_TRAITS_ARG newparent_,node_,parent_);
+    }
+}
+
+static void BINTREE_MANGLE_(avl_insert_fixup_right)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER parent_,BINTREE_POINTER node_)
+{
+    if(BINTREE_BALANCE(node_)!=BINTREE_LEFT_HEAVY){
+        BINTREE_FN_(_,rotate_left)(BINTREE_TRAITS_ARG parent_,node_);
+        BINTREE_SET_BALANCE(parent_,BINTREE_BALANCED);
+        BINTREE_SET_BALANCE(node_,BINTREE_BALANCED);
+    }else{
+        BINTREE_POINTER newparent_ = BINTREE_LEFT(node_);
+        BINTREE_FN_(_,replace_child)(BINTREE_TRAITS_ARG parent_,newparent_);
+        BINTREE_FN_(_,avl_insert_fixup_mixed)(BINTREE_TRAITS_ARG newparent_,parent_,node_);
+    }
+}
+
+static void BINTREE_MANGLE_(avl_insert_fixup)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER node_)
+{
+    // pre: the grown node is unbalanced (wouldn't grow otherwise)
+    BINTREE_POINTER parent_ = BINTREE_PARENT(node_);
+    while(parent_!=root_){
+        BINTREE_BALANCE_TYPE balance_ = BINTREE_BALANCE(parent_);
+        if(balance_!=BINTREE_BALANCED){
+            if(balance_==BINTREE_LEFT_HEAVY){
+                if(BINTREE_LEFT(parent_)==node_){
+                    BINTREE_FN_(_,avl_insert_fixup_left)(BINTREE_TRAITS_ARG parent_,node_);
+                    return;
+                }
+            }else{
+                if(BINTREE_RIGHT(parent_)==node_){
+                    BINTREE_FN_(_,avl_insert_fixup_right)(BINTREE_TRAITS_ARG parent_,node_);
+                    return;
+                }
+            }
+            BINTREE_SET_BALANCE(parent_,BINTREE_BALANCED);
+            return;
+        }
+        if(BINTREE_LEFT(parent_)==node_){
+            BINTREE_SET_BALANCE(parent_,BINTREE_LEFT_HEAVY);
+        }else{
+            BINTREE_SET_BALANCE(parent_,BINTREE_RIGHT_HEAVY);
+        }
+        node_ = parent_;
+        parent_ = BINTREE_PARENT(node_);
+    }
+}
+
+static void BINTREE_MANGLE_(avl_erase_fixup)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER parent_,
+        BINTREE_POINTER node_)
+{
+    // the node_'s height has decreased
+    for(;parent_!=root_;parent_=BINTREE_PARENT(node_)){
+        BINTREE_BALANCE_TYPE balance_ = BINTREE_BALANCE(parent_);
+        if(balance_==BINTREE_BALANCED){
+            if(BINTREE_LEFT(parent_)==node_){
+                BINTREE_SET_BALANCE(parent_,BINTREE_RIGHT_HEAVY);
+            }else{
+                BINTREE_SET_BALANCE(parent_,BINTREE_LEFT_HEAVY);
+            }
+            return;
+        }
+        if(balance_==BINTREE_LEFT_HEAVY){
+            BINTREE_POINTER left_ = BINTREE_LEFT(parent_);
+            if(left_!=node_){
+                if(BINTREE_BALANCE(left_)==BINTREE_BALANCED){
+                    BINTREE_SET_BALANCE(left_,BINTREE_RIGHT_HEAVY);
+                    BINTREE_FN_(_,rotate_right)(BINTREE_TRAITS_ARG parent_,left_);
+                    return;
+                }
+                BINTREE_FN_(_,avl_insert_fixup_left)(BINTREE_TRAITS_ARG parent_,left_);
+                node_ = BINTREE_PARENT(parent_);
+            }else{
+                BINTREE_SET_BALANCE(parent_,BINTREE_BALANCED);
+                node_ = parent_;
+            }
+        }else{
+            BINTREE_POINTER right_ = BINTREE_RIGHT(parent_);
+            if(BINTREE_RIGHT(parent_)!=node_){
+                if(BINTREE_BALANCE(right_)==BINTREE_BALANCED){
+                    BINTREE_SET_BALANCE(right_,BINTREE_LEFT_HEAVY);
+                    BINTREE_FN_(_,rotate_left)(BINTREE_TRAITS_ARG parent_,right_);
+                    return;
+                }
+                BINTREE_FN_(_,avl_insert_fixup_right)(BINTREE_TRAITS_ARG parent_,right_);
+                node_ = BINTREE_PARENT(parent_);
+            }else{
+                BINTREE_SET_BALANCE(parent_,BINTREE_BALANCED);
+                node_ = parent_;
+            }
+        }
+    }
+}
+
+static void BINTREE_MANGLE_(avl_erase_noright)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER node_)
+{
+    BINTREE_POINTER left_ = BINTREE_LEFT(node_);
+    BINTREE_POINTER parent_;
+    if(left_==BINTREE_NULL){
+        parent_ = BINTREE_FN_(_,remove_leaf_update_ends)(BINTREE_TRAITS_ARG root_,node_);
+    }else{
+        if(BINTREE_FN_(_,back)(BINTREE_TRAITS_ARG root_)==node_){
+            BINTREE_FN_(_,set_back)(BINTREE_TRAITS_ARG root_,left_);
+        }
+        parent_ = BINTREE_FN_(_,replace_child)(BINTREE_TRAITS_ARG node_,left_);
+    }
+    BINTREE_FN_(_,avl_erase_fixup)(BINTREE_TRAITS_ARG root_,parent_,left_);
+}
+
+BINTREE_LKG_ void BINTREE_MANGLE_(avl_insert)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER node_,
+        BINTREE_MANGLE_(pos_type) pos_)
+{
+    BINTREE_POINTER parent_ = pos_.pt_node;
+    BINTREE_SET_BALANCE(node_,BINTREE_BALANCED);
+    if(pos_.pt_left){
+        BINTREE_FN_(_,make_left_leaf)(BINTREE_TRAITS_ARG parent_,node_);
+        if(parent_==BINTREE_FN_(_,front)(BINTREE_TRAITS_ARG root_)){
+            BINTREE_FN_(_,set_front)(BINTREE_TRAITS_ARG root_,node_);
+            if(parent_==root_){
+                // first node in the tree
+                BINTREE_FN_(_,set_back)(BINTREE_TRAITS_ARG root_,node_);
+                return;
+            }
+        }
+        if(BINTREE_BALANCE(parent_)!=BINTREE_BALANCED){
+            // must have been right heavy
+            BINTREE_SET_BALANCE(parent_,BINTREE_BALANCED);
+            return;
+        }
+        BINTREE_SET_BALANCE(parent_,BINTREE_LEFT_HEAVY);
+    }else{
+        BINTREE_FN_(_,make_right_leaf)(BINTREE_TRAITS_ARG parent_,node_);
+        if(parent_==BINTREE_FN_(_,back)(BINTREE_TRAITS_ARG root_)){
+            BINTREE_FN_(_,set_back)(BINTREE_TRAITS_ARG root_,node_);
+        }
+        if(BINTREE_BALANCE(parent_)!=BINTREE_BALANCED){
+            // must have been left heavy
+            BINTREE_SET_BALANCE(parent_,BINTREE_BALANCED);
+            return;
+        }
+        BINTREE_SET_BALANCE(parent_,BINTREE_RIGHT_HEAVY);
+    }
+    BINTREE_FN_(_,avl_insert_fixup)(BINTREE_TRAITS_ARG root_,parent_);
+}
+
+BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(avl_erase)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER node_)
+{
+    BINTREE_POINTER right_ = BINTREE_RIGHT(node_);
+    if(right_==BINTREE_NULL){
+        BINTREE_POINTER ret_ = BINTREE_FN_(_,first_right_parent)(BINTREE_TRAITS_ARG node_);
+        BINTREE_FN_(_,avl_erase_noright)(BINTREE_TRAITS_ARG root_,node_);
+        return ret_;
+    }
+    BINTREE_POINTER replacement_ = BINTREE_FN_(_,leftmost_child)(BINTREE_TRAITS_ARG right_);
+    BINTREE_POINTER replright_ = BINTREE_RIGHT(replacement_);
+    BINTREE_POINTER parent_ = BINTREE_PARENT(replacement_);
+    BINTREE_SET_BALANCE(replacement_,BINTREE_BALANCE(node_));
+    BINTREE_FN_(_,replace_left_test)(BINTREE_TRAITS_ARG replacement_,BINTREE_LEFT(node_));
+    BINTREE_FN_(_,replace_child)(BINTREE_TRAITS_ARG node_,replacement_);
+    if(replacement_==right_){
+        if(BINTREE_FN_(_,front)(BINTREE_TRAITS_ARG root_)==node_){
+            BINTREE_FN_(_,set_front)(BINTREE_TRAITS_ARG root_,right_);
+        }
+        BINTREE_FN_(_,avl_erase_fixup)(BINTREE_TRAITS_ARG root_,right_,replright_);
+    }else{
+        BINTREE_FN_(_,replace_right)(BINTREE_TRAITS_ARG replacement_,right_);
+        BINTREE_FN_(_,replace_left_test)(BINTREE_TRAITS_ARG parent_,replright_);
+        BINTREE_FN_(_,avl_erase_fixup)(BINTREE_TRAITS_ARG root_,parent_,replright_);
+    }
+    return replacement_;
+}
+
+#endif // defined(BINTREE_POINTER)
+
+#include "bintree_impl_end.h"

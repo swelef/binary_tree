@@ -1,0 +1,110 @@
+//        Copyright Vladimir Marko 2005 - 2010.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
+#include "bintree_root.h"
+
+#include "bintree_impl_begin.h"
+
+//
+// helper templates for iteration endpoints
+//
+
+#define BINTREE_BODY_BEGIN_(c_) return BINTREE_TOPOLOGY_(c_,PARENT)(root_)
+#define BINTREE_BODY_END_(c_) return root_
+
+//
+// helper templates for special leafs access
+//
+
+#define BINTREE_BODY_FRONT_(c_) return BINTREE_TOPOLOGY_(c_,PARENT)(root_)
+#define BINTREE_BODY_BACK_(c_) return BINTREE_TOPOLOGY_(c_,RIGHT)(root_)
+#define BINTREE_BODY_TOP_(c_) return BINTREE_TOPOLOGY_(c_,LEFT)(root_)
+
+//
+// helper templates for special leafs setting
+//
+
+#define BINTREE_BODY_SET_FRONT_(c_) BINTREE_TOPOLOGY_(c_,SET_PARENT)(root_,new_)
+#define BINTREE_BODY_SET_BACK_(c_) BINTREE_TOPOLOGY_(c_,SET_RIGHT)(root_,new_)
+#define BINTREE_BODY_SET_TOP_(c_) BINTREE_TOPOLOGY_(c_,SET_LEFT)(root_,new_)
+
+// ----------------------------------------------------------------------------
+// non-const functions
+//
+
+#if defined(BINTREE_POINTER)
+
+BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(front)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_)
+{
+    BINTREE_BODY_FRONT_(_);
+}
+
+BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(back)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_)
+{
+    BINTREE_BODY_BACK_(_);
+}
+
+BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(top)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_)
+{
+    BINTREE_BODY_TOP_(_);
+}
+
+BINTREE_LKG_ void BINTREE_MANGLE_(set_front)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER new_)
+{
+    BINTREE_BODY_SET_FRONT_(_);
+}
+
+BINTREE_LKG_ void BINTREE_MANGLE_(set_back)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER new_)
+{
+    BINTREE_BODY_SET_BACK_(_);
+}
+
+BINTREE_LKG_ void BINTREE_MANGLE_(set_top)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER new_)
+{
+    BINTREE_BODY_SET_TOP_(_);
+}
+
+#endif // defined(BINTREE_POINTER)
+
+// ----------------------------------------------------------------------------
+// const functions
+//
+
+#if defined(BINTREE_CONST_POINTER)
+
+BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(cfront)(
+        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER root_)
+{
+    BINTREE_BODY_FRONT_(_C);
+}
+
+BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(cback)(
+        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER root_)
+{
+    BINTREE_BODY_BACK_(_C);
+}
+
+BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(ctop)(
+        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER root_)
+{
+    BINTREE_BODY_TOP_(_C);
+}
+
+#endif // defined(BINTREE_CONST_POINTER)
+
+#undef BINTREE_BODY_SET_TOP_
+#undef BINTREE_BODY_SET_BACK_
+#undef BINTREE_BODY_SET_FRONT_
+#undef BINTREE_BODY_TOP_
+#undef BINTREE_BODY_BACK_
+#undef BINTREE_BODY_FRONT_
+
+#include "bintree_impl_end.h"
