@@ -1,0 +1,210 @@
+//        Copyright Vladimir Marko 2006 - 2010.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
+#include <stddef.h>
+
+#include "tree_validate.h"
+
+#include "bintree_impl_begin.h"
+
+static void BINTREE_MANGLE_(failure_handler_ignore_)(const char* description_,BINTREE_POINTER node_){
+}
+
+static size_t BINTREE_MANGLE_(avl_validate_depth_)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_)
+{
+    size_t d_ = 0u;
+    int odd_ = 0;
+    BINTREE_POINTER second_runner_ = root_;
+    BINTREE_POINTER front_ = root_;
+    BINTREE_POINTER p_;
+    for(p_=BINTREE_LEFT(root_);p_!=BINTREE_NULL;p_=BINTREE_LEFT(p_)){
+        if(p_==second_runner_){
+            handler_("detected cycle on left edge",p_);
+            return 0u;
+        }
+        if(odd_){
+            second_runner_ = BINTREE_LEFT(second_runner_);
+        }
+        odd_ = !odd_;
+        d_ += (BINTREE_BALANCE(p_)==BINTREE_RIGHT_HEAVY) ? 2u : 1u;
+        front_ = p_;
+    }
+    if(front_!=BINTREE_PARENT(root_)){
+        handler_("wrong front",front_);
+        return 0u;
+    }
+    return d_;
+}
+
+static int BINTREE_MANGLE_(avl_validate_subtree_)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER top_,BINTREE_POINTER parent_,
+        size_t depth_,BINTREE_MANGLE_(failure_handler) handler_)
+{
+    if(depth_==0){
+        if(top_!=0){
+            handler_("branch too deep",top_);
+            return 0;
+        }
+        return 1;
+    }
+    if(top_==0){
+        handler_("branch too shallow",parent_);
+        return 0;
+    }
+    if(BINTREE_PARENT(top_)!=parent_){
+        handler_("wrong parent",parent_);
+        return 0;
+    }
+    BINTREE_BALANCE_TYPE bal_ = BINTREE_BALANCE(top_);
+    if(bal_!=BINTREE_BALANCED && bal_!=BINTREE_LEFT_HEAVY && bal_!=BINTREE_RIGHT_HEAVY){
+        handler_("invalid balance value",top_);
+        return 0;
+    }
+    if(depth_==1u && bal_!=BINTREE_BALANCED){
+        handler_("unbalanced bottom node",top_);
+        return 0;
+    }
+    int lret_ = BINTREE_MANGLE_(avl_validate_subtree_)(
+            BINTREE_TRAITS_ARG BINTREE_LEFT(top_),top_,
+            depth_-((bal_==BINTREE_RIGHT_HEAVY) ? 2u : 1u),handler_);
+    int rret_ = BINTREE_MANGLE_(avl_validate_subtree_)(
+            BINTREE_TRAITS_ARG BINTREE_RIGHT(top_),top_,
+            depth_-((bal_==BINTREE_LEFT_HEAVY) ? 2u : 1u),handler_);
+    return lret_&&rret_;
+}
+
+BINTREE_LKG_ int BINTREE_MANGLE_(avl_validate)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_)
+{
+    if(handler_==NULL){
+        handler_ = BINTREE_MANGLE_(failure_handler_ignore_);
+    }
+    if(BINTREE_LEFT(root_)==BINTREE_NULL){
+        return BINTREE_PARENT(root_)==root_ && BINTREE_RIGHT(root_)==root_;
+    }
+    size_t depth_ = BINTREE_MANGLE_(avl_validate_depth_)(
+            BINTREE_TRAITS_ARG root_,handler_);
+    if(depth_==0u){
+        return 0;
+    }
+
+    int ret_ = BINTREE_MANGLE_(avl_validate_subtree_)(
+            BINTREE_TRAITS_ARG BINTREE_LEFT(root_),root_,depth_,handler_);
+    if(!ret_){
+        return ret_;
+    }
+    BINTREE_POINTER back_=root_;
+    BINTREE_POINTER p_;
+    for(p_=BINTREE_LEFT(root_);p_!=BINTREE_NULL;p_=BINTREE_RIGHT(p_)){
+        back_ = p_;
+    }
+    if(back_!=BINTREE_RIGHT(root_)){
+        handler_("wrong back",back_);
+        return 0;
+    }
+    return 1;
+}
+
+static size_t BINTREE_MANGLE_(rb_validate_depth_)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_)
+{
+    size_t d_ = 0u;
+    int odd_ = 0;
+    BINTREE_POINTER second_runner_ = root_;
+    BINTREE_POINTER front_ = root_;
+    BINTREE_POINTER p_;
+    for(p_=BINTREE_LEFT(root_);p_!=0;p_=BINTREE_LEFT(p_)){
+        if(p_==second_runner_){
+            handler_("detected cycle on left edge",p_);
+            return 0u;
+        }
+        if(odd_){
+            second_runner_ = BINTREE_LEFT(second_runner_);
+        }
+        odd_ = !odd_;
+        d_+= (BINTREE_COLOR(p_)==BINTREE_BLACK_COLOR) ? 1u : 0u;
+        front_ = p_;
+    }
+    if(front_!=BINTREE_PARENT(root_)){
+        handler_("wrong front",front_);
+        return 0u;
+    }
+    return d_;
+}
+
+static int BINTREE_MANGLE_(rb_validate_subtree_)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER top_,BINTREE_POINTER parent_,
+        size_t depth_,int red_parent_,BINTREE_MANGLE_(failure_handler) handler_)
+{
+    if(top_==0){
+        if(depth_!=0){
+            handler_("branch too shallow",parent_);
+            return 0;
+        }
+        return 1;
+    }
+    if(BINTREE_PARENT(top_)!=parent_){
+        handler_("wrong parent",parent_);
+        return 0;
+    }
+    BINTREE_COLOR_TYPE col_ = BINTREE_COLOR(top_);
+    if(col_!=BINTREE_RED_COLOR && col_!=BINTREE_BLACK_COLOR){
+        handler_("invalid color value",top_);
+        return 0;
+    }
+    int is_red_ = col_==BINTREE_RED_COLOR;
+    if(is_red_){
+        if(red_parent_){
+            handler_("second red node in a row",top_);
+            return 0;
+        }
+    }else{
+        if(depth_==0){
+            handler_("branch too deep",top_);
+            return 0;
+        }
+        --depth_;
+    }
+    int lret_ = BINTREE_MANGLE_(rb_validate_subtree_)(
+            BINTREE_TRAITS_ARG BINTREE_LEFT(top_),top_,depth_,is_red_,handler_);
+    int rret_ = BINTREE_MANGLE_(rb_validate_subtree_)(
+            BINTREE_TRAITS_ARG BINTREE_RIGHT(top_),top_,depth_,is_red_,handler_);
+    return lret_&&rret_;
+}
+
+BINTREE_LKG_ int BINTREE_MANGLE_(rb_validate)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_)
+{
+    if(handler_==NULL){
+        handler_ = BINTREE_MANGLE_(failure_handler_ignore_);
+    }
+    if(BINTREE_LEFT(root_)==BINTREE_NULL){
+        return BINTREE_PARENT(root_)==root_ && BINTREE_RIGHT(root_)==root_;
+    }
+    size_t depth_ = BINTREE_MANGLE_(rb_validate_depth_)(
+            BINTREE_TRAITS_ARG root_,handler_);
+    if(depth_==0u){
+        return 0;
+    }
+
+    int ret_ = BINTREE_MANGLE_(rb_validate_subtree_)(
+            BINTREE_TRAITS_ARG BINTREE_LEFT(root_),root_,depth_,1,handler_);
+    if(!ret_){
+        return ret_;
+    }
+    BINTREE_POINTER back_=root_;
+    BINTREE_POINTER p_;
+    for(p_=BINTREE_LEFT(root_);p_!=BINTREE_NULL;p_=BINTREE_RIGHT(p_)){
+        back_ = p_;
+    }
+    if(back_!=BINTREE_RIGHT(root_)){
+        handler_("wrong back",back_);
+        return 0;
+    }
+    return 1;
+}
+
+#include "bintree_impl_end.h"

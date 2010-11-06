@@ -1,0 +1,382 @@
+//        Copyright Vladimir Marko 2006 - 2010.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
+#include <stddef.h>
+#include <stdlib.h>
+
+#include "rbtree_generate.h"
+
+#include "bintree_impl_begin.h"
+
+struct BINTREE_MANGLE_(rb_generate) {
+    BINTREE_POINTER the_root_;
+    STORAGE_ITERATOR begin_;
+    STORAGE_ITERATOR end_;
+
+    // min and max number of nodes for a given depth
+    size_t* minnodes_;
+    size_t* maxnodes_;
+    size_t minmaxnodes_size_;
+
+    // current depth
+    size_t depth_;
+
+    // cached node count for which we are generating the trees
+    size_t nodes_;
+    // cached index of the current leftmost node
+    size_t first_index_;
+
+    // preallocated helper arrays for next()
+    size_t* nodecount_;
+    size_t* nodedepth_;
+};
+
+BINTREE_LKG_ BINTREE_MANGLE_(rb_generate)* BINTREE_MANGLE_(rb_generate_alloc)(
+        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,
+        STORAGE_ITERATOR storage_begin_,STORAGE_ITERATOR storage_end_)
+{
+    BINTREE_MANGLE_(rb_generate)* g_;
+    size_t d_,min_;
+    size_t nodes_ = 0u;
+    STORAGE_ITERATOR i_;
+    for(i_=storage_begin_;i_!=storage_end_;i_=STORAGE_NEXT(i_)){
+        ++nodes_;
+    }
+    if(nodes_==0) goto error0_;
+    g_ = (BINTREE_MANGLE_(rb_generate)*)malloc(sizeof(BINTREE_MANGLE_(rb_generate)));
+    if(g_==NULL) goto error0_;
+    g_->minnodes_ = (size_t*)malloc(nodes_*sizeof(size_t)); //< overkill for simplicity
+    if(g_->minnodes_==NULL) goto error1_;
+    g_->maxnodes_ = (size_t*)malloc(nodes_*sizeof(size_t)); //< overkill for simplicity
+    if(g_->maxnodes_==NULL) goto error2_;
+    g_->nodecount_ = (size_t*)malloc(nodes_*sizeof(size_t));
+    if(g_->nodecount_==NULL) goto error3_;
+    g_->nodedepth_ = (size_t*)malloc(nodes_*sizeof(size_t));
+    if(g_->nodedepth_==NULL) goto error4_;
+
+    g_->the_root_ = root_;
+    g_->begin_ = storage_begin_;
+    g_->end_ = storage_end_;
+    g_->nodes_ = nodes_;
+    // init minnodes_ and maxnodes_
+    g_->minnodes_[0] = 0;
+    g_->maxnodes_[0] = 0;
+    g_->minmaxnodes_size_ = 1u;
+    d_ = 1u;
+    min_;
+    for(min_=1u;min_<=nodes_;++d_) {
+        g_->minnodes_[d_] = min_;
+        g_->maxnodes_[d_] = g_->maxnodes_[d_-1u]*4u+3u;
+        min_ = min_*2u+1u;
+    }
+    g_->minmaxnodes_size_ = d_;
+    // init the first tree
+    BINTREE_MANGLE_(rb_generate_first)(BINTREE_TRAITS_PARAM g_);
+    return g_;
+
+error4_:
+    free(g_->nodecount_);
+error3_:
+    free(g_->maxnodes_);
+error2_:
+    free(g_->minnodes_);
+error1_:
+    free(g_);
+error0_:
+    return NULL;
+}
+
+BINTREE_LKG_ void BINTREE_MANGLE_(rb_generate_free)(
+        BINTREE_TRAITS_PARAM BINTREE_MANGLE_(rb_generate)* g_)
+{
+    if(g_!=NULL){
+        free(g_->nodedepth_);
+        free(g_->nodecount_);
+        free(g_->maxnodes_);
+        free(g_->minnodes_);
+        free(g_);
+    }
+}
+
+static STORAGE_ITERATOR BINTREE_MANGLE_(rb_generate_make_first_tree_)(
+        BINTREE_TRAITS_PARAM BINTREE_MANGLE_(rb_generate)* g_,
+        BINTREE_POINTER parent_,STORAGE_ITERATOR first_,size_t treenodes_,
+        size_t treedepth_,BINTREE_COLOR_TYPE topcolor_)
+{
+    // assert(treenodes_!=0u);
+    BINTREE_POINTER firstp_ = STORAGE_ITER_TO_PTR(first_);
+    BINTREE_SET_PARENT(firstp_,parent_);
+    BINTREE_SET_COLOR(firstp_,topcolor_);
+    parent_ = firstp_;
+    first_ = STORAGE_NEXT(first_);
+    switch(treenodes_){
+        case 1u:
+            BINTREE_SET_LEFT(parent_,BINTREE_NULL);
+            BINTREE_SET_RIGHT(parent_,BINTREE_NULL);
+            return first_;
+        case 2u:
+            BINTREE_SET_LEFT(parent_,BINTREE_NULL);
+            BINTREE_SET_RIGHT(parent_,STORAGE_ITER_TO_PTR(first_));
+            return BINTREE_MANGLE_(rb_generate_make_first_tree_)(
+                    BINTREE_TRAITS_ARG g_,parent_,first_,1u,0u,BINTREE_RED_COLOR);
+        case 3u:
+            if(topcolor_!=BINTREE_RED_COLOR && (--treedepth_==0u)){
+                topcolor_ = BINTREE_RED_COLOR;
+            }else{
+                topcolor_ = BINTREE_BLACK_COLOR;
+            }
+            BINTREE_SET_LEFT(parent_,STORAGE_ITER_TO_PTR(first_));
+            first_ = BINTREE_MANGLE_(rb_generate_make_first_tree_)(
+                    BINTREE_TRAITS_ARG g_,parent_,first_,1u,treedepth_,topcolor_);
+            BINTREE_SET_RIGHT(parent_,STORAGE_ITER_TO_PTR(first_));
+            return BINTREE_MANGLE_(rb_generate_make_first_tree_)(
+                    BINTREE_TRAITS_ARG g_,parent_,first_,1u,treedepth_,topcolor_);
+        default:
+            break;
+    }
+
+    size_t newdepth_ = (topcolor_!=BINTREE_RED_COLOR) ? treedepth_-1u : treedepth_;
+    size_t leftnodes_,rightnodes_;
+    BINTREE_COLOR_TYPE leftcolor_,rightcolor_;
+    if(treenodes_<=1u+2u*g_->maxnodes_[newdepth_]){
+        // no red subnodes
+        rightcolor_ = BINTREE_BLACK_COLOR;
+        leftcolor_ = BINTREE_BLACK_COLOR;
+        if(treenodes_<=1u+g_->minnodes_[newdepth_]+g_->maxnodes_[newdepth_]){
+            leftnodes_ = g_->minnodes_[newdepth_];
+            rightnodes_ = treenodes_-1u-leftnodes_;
+        }else{
+            rightnodes_ = g_->maxnodes_[newdepth_];
+            leftnodes_ = treenodes_-1u-rightnodes_;
+        }
+    }else{
+        // some red subnodes
+        rightcolor_ = BINTREE_RED_COLOR;
+        if(treenodes_<=2u+3u*g_->maxnodes_[newdepth_]){
+            leftcolor_ = BINTREE_BLACK_COLOR;
+            if(treenodes_<=2u+g_->minnodes_[newdepth_]+2u*g_->maxnodes_[newdepth_]){
+                leftnodes_ = g_->minnodes_[newdepth_];
+                rightnodes_ = treenodes_-1u-leftnodes_;
+            }else{
+                rightnodes_ = 1u+2u*g_->maxnodes_[newdepth_];
+                leftnodes_ = treenodes_-1u-rightnodes_;
+            }
+        }else{
+            leftcolor_ = BINTREE_RED_COLOR;
+            rightnodes_ = 1u+2u*g_->maxnodes_[newdepth_];
+            leftnodes_ = treenodes_-1u-rightnodes_;
+        }
+    }
+
+    BINTREE_SET_LEFT(parent_,STORAGE_ITER_TO_PTR(first_));
+    first_ = BINTREE_MANGLE_(rb_generate_make_first_tree_)(
+            BINTREE_TRAITS_ARG g_,parent_,first_,leftnodes_,newdepth_,leftcolor_);
+    BINTREE_SET_RIGHT(parent_,STORAGE_ITER_TO_PTR(first_));
+    return BINTREE_MANGLE_(rb_generate_make_first_tree_)(
+            BINTREE_TRAITS_ARG g_,parent_,first_,rightnodes_,newdepth_,rightcolor_);
+}
+
+static void BINTREE_MANGLE_(rb_generate_first_for_depth_)(
+        BINTREE_TRAITS_PARAM BINTREE_MANGLE_(rb_generate)* g_)
+{
+    BINTREE_POINTER root_ = g_->the_root_;
+    BINTREE_MANGLE_(rb_generate_make_first_tree_)(
+            BINTREE_TRAITS_ARG g_,root_,g_->begin_,g_->nodes_,g_->depth_,BINTREE_BLACK_COLOR);
+    BINTREE_SET_LEFT(root_,STORAGE_ITER_TO_PTR(g_->begin_)); // top
+    STORAGE_ITERATOR tmp_ = g_->begin_;
+    g_->first_index_ = 0u;
+    while(BINTREE_LEFT(STORAGE_ITER_TO_PTR(tmp_))!=BINTREE_NULL){
+        tmp_ = STORAGE_NEXT(tmp_);
+        ++g_->first_index_;
+    }
+    BINTREE_SET_PARENT(root_,STORAGE_ITER_TO_PTR(tmp_)); // leftmost
+    tmp_ = STORAGE_PREV(g_->end_);
+    BINTREE_SET_RIGHT(root_,STORAGE_ITER_TO_PTR(tmp_)); // rightmost
+}
+
+BINTREE_LKG_ void BINTREE_MANGLE_(rb_generate_first)(
+        BINTREE_TRAITS_PARAM BINTREE_MANGLE_(rb_generate)* g_)
+{
+    g_->depth_ = g_->minmaxnodes_size_-1u;
+    BINTREE_MANGLE_(rb_generate_first_for_depth_)(BINTREE_TRAITS_PARAM g_);
+}
+
+BINTREE_LKG_ int BINTREE_MANGLE_(rb_generate_finish_next_)(
+        BINTREE_TRAITS_PARAM BINTREE_MANGLE_(rb_generate)* g_,
+        STORAGE_ITERATOR node_,size_t index_,size_t leftcount_,
+        BINTREE_COLOR_TYPE rightcolor_)
+{
+    size_t count_ = g_->nodecount_[index_];
+    STORAGE_ITERATOR next_ = STORAGE_NEXT(node_);
+    // remake left and right subtrees
+    size_t depth_ = g_->nodedepth_[index_];
+    BINTREE_POINTER nodep_ = STORAGE_ITER_TO_PTR(node_);
+    if(count_==2u){
+        BINTREE_SET_LEFT(nodep_,STORAGE_ITER_TO_PTR(next_));
+        next_ = STORAGE_NEXT(next_);
+        BINTREE_SET_RIGHT(nodep_,BINTREE_NULL);
+    }else{
+        if(BINTREE_COLOR(nodep_) == BINTREE_RED_COLOR){
+            next_ = BINTREE_MANGLE_(rb_generate_make_first_tree_)(
+                    BINTREE_TRAITS_ARG g_,nodep_,next_,leftcount_,depth_,
+                    BINTREE_BLACK_COLOR);
+            BINTREE_SET_RIGHT(nodep_,STORAGE_ITER_TO_PTR(next_));
+            next_ = BINTREE_MANGLE_(rb_generate_make_first_tree_)(
+                    BINTREE_TRAITS_ARG g_,nodep_,next_,count_-1u-leftcount_,depth_,
+                    BINTREE_BLACK_COLOR);
+        }else{
+            next_ = BINTREE_MANGLE_(rb_generate_make_first_tree_)(
+                    BINTREE_TRAITS_ARG g_,nodep_,next_,leftcount_,depth_-1u,
+                    BINTREE_COLOR(STORAGE_ITER_TO_PTR(next_)));
+            BINTREE_SET_RIGHT(nodep_,STORAGE_ITER_TO_PTR(next_));
+            next_ = BINTREE_MANGLE_(rb_generate_make_first_tree_)(
+                    BINTREE_TRAITS_ARG g_,nodep_,next_,count_-1u-leftcount_,depth_-1u,
+                    rightcolor_);
+        }
+    }
+    // correct leftmost if necessary
+    if(index_<=g_->first_index_){
+        g_->first_index_=index_;
+        while(BINTREE_LEFT(nodep_)!=BINTREE_NULL){
+            node_ = STORAGE_NEXT(node_);
+            nodep_ = STORAGE_ITER_TO_PTR(node_);
+            ++g_->first_index_;
+        }
+        BINTREE_SET_PARENT(g_->the_root_,nodep_);
+    }
+    index_ += count_;
+    // restart subtrees to the right
+    while(index_!=g_->nodes_){ // while(next_!=last_){
+        count_ = g_->nodecount_[index_];
+        BINTREE_POINTER nextp_ = STORAGE_ITER_TO_PTR(next_);
+        next_ = BINTREE_MANGLE_(rb_generate_make_first_tree_)(
+                BINTREE_TRAITS_ARG g_,BINTREE_PARENT(nextp_),next_,
+                count_,g_->nodedepth_[index_],BINTREE_COLOR(nextp_));
+        index_ += count_;
+    }
+    // set correct rightmost
+    next_ = STORAGE_PREV(next_);
+    BINTREE_SET_RIGHT(g_->the_root_,STORAGE_ITER_TO_PTR(next_));
+}
+
+BINTREE_LKG_ int BINTREE_MANGLE_(rb_generate_next)(
+        BINTREE_TRAITS_PARAM BINTREE_MANGLE_(rb_generate)* g_)
+{
+    STORAGE_ITERATOR node_ = g_->end_;
+    size_t i_;
+    for(i_=g_->nodes_;i_!=0u;){
+        --i_;
+        node_ = STORAGE_PREV(node_);
+        // cache left and right
+        BINTREE_POINTER left_ = BINTREE_LEFT(STORAGE_ITER_TO_PTR(node_));
+        BINTREE_POINTER right_ = BINTREE_RIGHT(STORAGE_ITER_TO_PTR(node_));
+        // special case null pointers
+        if(right_==BINTREE_NULL){
+            if(left_==BINTREE_NULL){
+                g_->nodecount_[i_] = 1u;
+                g_->nodedepth_[i_] = (BINTREE_COLOR(STORAGE_ITER_TO_PTR(node_))!=BINTREE_RED_COLOR) ? 1u : 0u;
+            }else{
+                g_->nodecount_[i_] = 2u;
+                g_->nodedepth_[i_] = 1u;
+            }
+            continue;
+        }
+        if(left_ == BINTREE_NULL){
+            if(i_+2u==g_->nodes_){
+                STORAGE_ITERATOR next_ = node_;
+                next_ = STORAGE_NEXT(next_);
+                BINTREE_POINTER nodep_ = STORAGE_ITER_TO_PTR(node_);
+                BINTREE_SET_LEFT(nodep_,STORAGE_ITER_TO_PTR(next_));
+                BINTREE_SET_RIGHT(nodep_,BINTREE_NULL);
+                BINTREE_SET_RIGHT(g_->the_root_,nodep_);
+                if(g_->nodes_==2u){
+                    BINTREE_SET_PARENT(g_->the_root_,STORAGE_ITER_TO_PTR(next_));
+                }
+                return 1;
+            }
+            g_->nodecount_[i_] = 2u;
+            BINTREE_MANGLE_(rb_generate_finish_next_)(
+                    BINTREE_TRAITS_ARG g_,node_,i_,1u,BINTREE_BLACK_COLOR);
+            return 1;
+        }
+
+        // prepare necessary decission variables
+        size_t leftcount_ = g_->nodecount_[i_+1u];
+
+        size_t rightcount_ = g_->nodecount_[i_+1u+leftcount_];
+        g_->nodecount_[i_] = 1u+leftcount_+rightcount_;
+        size_t subdepth_ = g_->nodedepth_[i_+1u];
+        if(BINTREE_COLOR(STORAGE_ITER_TO_PTR(node_)) == BINTREE_RED_COLOR){
+            g_->nodedepth_[i_] = subdepth_;
+            if(leftcount_<g_->maxnodes_[subdepth_] && rightcount_>g_->minnodes_[subdepth_]){
+                ++leftcount_;
+                BINTREE_MANGLE_(rb_generate_finish_next_)(
+                        BINTREE_TRAITS_ARG g_,node_,i_,leftcount_,BINTREE_BLACK_COLOR);
+                return 1;
+            }
+            continue;
+        }
+
+        g_->nodedepth_[i_] = subdepth_+1u;
+        // try moving one node from right subtree to the left one
+        BINTREE_COLOR_TYPE leftcolor_ = BINTREE_COLOR(left_);
+        BINTREE_COLOR_TYPE rightcolor_ = BINTREE_COLOR(right_);
+
+        size_t leftmax_ = g_->maxnodes_[subdepth_];
+        size_t rightmin_ = g_->minnodes_[subdepth_];
+        if(leftcolor_ == BINTREE_RED_COLOR){
+            leftmax_ = 2u*leftmax_+1u;
+        }
+        if(rightcolor_ == BINTREE_RED_COLOR){
+            rightmin_ = 2u*rightmin_+1u;
+        }
+        if(leftcount_<leftmax_ && rightcount_>rightmin_){
+            ++leftcount_;
+            BINTREE_MANGLE_(rb_generate_finish_next_)(
+                    BINTREE_TRAITS_ARG g_,node_,i_,leftcount_,rightcolor_);
+            return 1;
+        }
+
+        if(leftcolor_==BINTREE_RED_COLOR){
+            if(rightcolor_==BINTREE_RED_COLOR || g_->nodecount_[i_]<3u+4u*g_->minnodes_[subdepth_]){
+                continue;
+            }
+            // change right node to red
+            rightcolor_ = BINTREE_RED_COLOR;
+            leftcount_ = (g_->nodecount_[i_] >= 3u+2u*g_->minnodes_[subdepth_]+2u*g_->maxnodes_[subdepth_])
+                         ? g_->nodecount_[i_]-2u-2u*g_->maxnodes_[subdepth_]
+                         : 1u+2u*g_->minnodes_[subdepth_];
+        }else{
+            if(rightcolor_==BINTREE_RED_COLOR){
+                // change left to red and right to black
+                rightcolor_ = BINTREE_BLACK_COLOR;
+                BINTREE_SET_COLOR(left_,BINTREE_RED_COLOR);
+                leftcount_ = (g_->nodecount_[i_] >= 2u+2u*g_->minnodes_[subdepth_]+g_->maxnodes_[subdepth_])
+                             ? g_->nodecount_[i_]-1u-g_->maxnodes_[subdepth_]
+                             : 1u+2u*g_->minnodes_[subdepth_];
+            }else{
+                if(g_->nodecount_[i_]<2u+3u*g_->minnodes_[subdepth_]){
+                    continue;
+                }
+                rightcolor_ = BINTREE_RED_COLOR;
+                leftcount_ = g_->minnodes_[subdepth_];
+            }
+        }
+        BINTREE_MANGLE_(rb_generate_finish_next_)(
+                BINTREE_TRAITS_ARG g_,node_,i_,leftcount_,rightcolor_);
+        return 1;
+    }
+    if(g_->depth_!=0u && g_->maxnodes_[g_->depth_-1]>=g_->nodes_){
+        --g_->depth_;
+        BINTREE_MANGLE_(rb_generate_first_for_depth_)(
+                BINTREE_TRAITS_ARG g_);
+        return 1;
+    }
+    BINTREE_MANGLE_(rb_generate_first)(
+            BINTREE_TRAITS_ARG g_);
+    return 0;
+}
+
+#include "bintree_impl_end.h"
