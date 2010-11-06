@@ -1,3 +1,8 @@
+#        Copyright Vladimir Marko 2006 - 2010.
+# Distributed under the Boost Software License, Version 1.0.
+#    (See accompanying file LICENSE_1_0.txt or copy at
+#          http://www.boost.org/LICENSE_1_0.txt)
+
 BINTREE_HEADERS = bintree_base.h bintree_traverse.h avltree_modify.h rbtree_modify.h bintree_root.h bintree_balance.h bintree_traverse_base.h \
       bintree_impl_begin.h bintree_impl_end.h
 BINTREE_TEMPLATES = bintree_base.tc bintree_traverse.tc avltree_modify.tc rbtree_modify.tc bintree_root.tc bintree_balance.tc bintree_traverse_base.tc
