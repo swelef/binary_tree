@@ -6,7 +6,7 @@
 #ifndef VMARKO_AVLTREE_H_INCLUDED
 #define VMARKO_AVLTREE_H_INCLUDED
 
-// standard red black tree interface
+// standard AVL tree interface
 /*
  *  The class template avltree provides the standard functions to traverse and
  *  modify an AVL tree described by the BINTREE_* macros, see bintree_base and
