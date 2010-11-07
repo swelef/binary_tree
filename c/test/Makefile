@@ -15,3 +15,6 @@ all: bintree_test
 
 bintree_test: $(DEPENDS)
 	cc -I ../bintree/ bintree_test.c -o bintree_test
+
+clean:
+	rm -f bintree_test
