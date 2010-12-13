@@ -12,7 +12,7 @@
 
 #define BINTREE_BODY_LOWER_BOUND_(c_) \
     BINTREE_PTRTYPE_(c_) lb_ = root_; \
-    BINTREE_PTRTYPE_(c_) node_ = BINTREE_FN_(c_,top)(BINTREE_TRAITS_ARG root_); \
+    BINTREE_PTRTYPE_(c_) node_ = BINTREE_FN_(c_,top)(BINTREE_TRARG_ root_); \
     while(node_!=BINTREE_NULL){ \
         if(BINTREE_COMPARE(BINTREE_KEY(node_),key_)){ \
             node_ = BINTREE_TOPOLOGY_(c_,RIGHT)(node_); \
@@ -25,7 +25,7 @@
 
 #define BINTREE_BODY_UPPER_BOUND_(c_) \
     BINTREE_PTRTYPE_(c_) ub_ = root_; \
-    BINTREE_PTRTYPE_(c_) node_ = BINTREE_FN_(c_,top)(BINTREE_TRAITS_ARG root_); \
+    BINTREE_PTRTYPE_(c_) node_ = BINTREE_FN_(c_,top)(BINTREE_TRARG_ root_); \
     while(node_!=BINTREE_NULL){ \
         if(!BINTREE_COMPARE(key_,BINTREE_KEY(node_))){ \
             node_ = BINTREE_TOPOLOGY_(c_,RIGHT)(node_); \
@@ -37,7 +37,7 @@
     return ub_
 
 #define BINTREE_BODY_FIND_(c_) \
-    BINTREE_PTRTYPE_(c_) lb_ = BINTREE_FN_(c_,lower_bound)(BINTREE_TRAITS_ARG root_,key_ BINTREE_COMPARE_ARG); \
+    BINTREE_PTRTYPE_(c_) lb_ = BINTREE_FN_(c_,lower_bound)(BINTREE_TRARG_ root_,key_ BINTREE_CPARG_); \
     if((lb_!=root_)&&(!BINTREE_COMPARE(key_,BINTREE_KEY(lb_)))){ \
         return lb_; \
     } \
@@ -50,19 +50,19 @@
 #if defined(BINTREE_POINTER)
 
 BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(find)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_)
 {
     BINTREE_BODY_FIND_(_);
 }
 
 BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(lower_bound)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_)
 {
     BINTREE_BODY_LOWER_BOUND_(_);
 }
 
 BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(upper_bound)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_)
 {
     BINTREE_BODY_UPPER_BOUND_(_);
 }
@@ -74,12 +74,12 @@ BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(upper_bound)(
 #define BINTREE_RETURN_POS_(n_,l_) \
     BINTREE_MANGLE_(pos_type) ret_ = { n_, l_ }; \
     return ret_
-#define BINTREE_HINT_TRY_(fn_) BINTREE_FN_(_,fn_)(BINTREE_TRAITS_ARG root_,key_ BINTREE_COMPARE_ARG,hint_)
-#define BINTREE_HINT_FAIL_(fn_) BINTREE_FN_(_,fn_)(BINTREE_TRAITS_ARG root_,key_ BINTREE_COMPARE_ARG)
-#define BINTREE_TRAVERSE_(fn_,n_) BINTREE_FN_(_,fn_)(BINTREE_TRAITS_ARG n_)
+#define BINTREE_HINT_TRY_(fn_) BINTREE_FN_(_,fn_)(BINTREE_TRARG_ root_,key_ BINTREE_CPARG_,hint_)
+#define BINTREE_HINT_FAIL_(fn_) BINTREE_FN_(_,fn_)(BINTREE_TRARG_ root_,key_ BINTREE_CPARG_)
+#define BINTREE_TRAVERSE_(fn_,n_) BINTREE_FN_(_,fn_)(BINTREE_TRARG_ n_)
 
 static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_equal_after)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM,
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_,
         BINTREE_POINTER hint_)
 {
     // pre: hint_->key<=key_ && distance(hint_,back(root_))>=1
@@ -98,7 +98,7 @@ static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_equal_after)(
 }
 
 static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_equal_before)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM,
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_,
         BINTREE_POINTER hint_)
 {
     // pre: hint_->key>key_ && distance(front(root_),hint_)>=1
@@ -117,7 +117,7 @@ static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_equal_before)(
 }
 
 static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_unique_after)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM,
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_,
         BINTREE_POINTER hint_)
 {
     // pre: hint_->key<=key_ && distance(hint_,back(root_))>=1
@@ -136,7 +136,7 @@ static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_unique_after)(
 }
 
 static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_unique_before)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM,
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_,
         BINTREE_POINTER hint_)
 {
     // pre: hint_->key>key_ && distance(front(root_),hint_)>=1
@@ -155,7 +155,7 @@ static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_unique_before)(
 }
 
 static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_equal_front)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM,
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_,
         BINTREE_POINTER hint_)
 {
     if((hint_==root_)||(!BINTREE_COMPARE(BINTREE_KEY(hint_),key_))){
@@ -177,7 +177,7 @@ static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_equal_front)(
 }
 
 static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_equal_back)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM,
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_,
         BINTREE_POINTER hint_)
 {
     if(!BINTREE_COMPARE(key_,BINTREE_KEY(hint_))){
@@ -201,7 +201,7 @@ static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_equal_back)(
 }
 
 static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_unique_front)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM,
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_,
         BINTREE_POINTER hint_)
 {
     if((hint_==root_)||(BINTREE_COMPARE(key_,BINTREE_KEY(hint_)))){
@@ -223,7 +223,7 @@ static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_unique_front)(
 }
 
 static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_unique_back)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM,
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_,
         BINTREE_POINTER hint_)
 {
     if(BINTREE_COMPARE(BINTREE_KEY(hint_),key_)){
@@ -251,7 +251,7 @@ static BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(try_unique_back)(
 //
 
 BINTREE_LKG_ BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(insert_pos_equal)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_)
 {
     BINTREE_POINTER pos_ = root_;
     int left_ = 1;
@@ -269,7 +269,7 @@ BINTREE_LKG_ BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(insert_pos_equal)(
 }
 
 BINTREE_LKG_ BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(insert_pos_unique)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_)
 {
     BINTREE_POINTER pos_ = root_;
     BINTREE_POINTER tmp_ = BINTREE_TRAVERSE_(top,root_);
@@ -297,7 +297,7 @@ BINTREE_LKG_ BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(insert_pos_unique)(
 }
 
 BINTREE_LKG_ BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(insert_pos_equal_hint)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM,
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_,
         BINTREE_POINTER hint_)
 {
     BINTREE_POINTER tmp_ = BINTREE_TRAVERSE_(front,root_);
@@ -321,7 +321,7 @@ BINTREE_LKG_ BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(insert_pos_equal_hint)(
 }
 
 BINTREE_LKG_ BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(insert_pos_unique_hint)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM,
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_,
         BINTREE_POINTER hint_)
 {
     BINTREE_POINTER tmp_ = BINTREE_TRAVERSE_(front,root_);
@@ -358,19 +358,19 @@ BINTREE_LKG_ BINTREE_MANGLE_(pos_type) BINTREE_MANGLE_(insert_pos_unique_hint)(
 #if defined(BINTREE_CONST_POINTER)
 
 BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(cfind)(
-        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM)
+        BINTREE_TRPAR_ BINTREE_CONST_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_)
 {
     BINTREE_BODY_FIND_(_C);
 }
 
 BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(clower_bound)(
-        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM)
+        BINTREE_TRPAR_ BINTREE_CONST_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_)
 {
     BINTREE_BODY_LOWER_BOUND_(_C);
 }
 
 BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(cupper_bound)(
-        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_COMPARE_PARAM)
+        BINTREE_TRPAR_ BINTREE_CONST_POINTER root_,BINTREE_KEY_TYPE key_ BINTREE_CPPAR_)
 {
     BINTREE_BODY_UPPER_BOUND_(_C);
 }

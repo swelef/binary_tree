@@ -15,9 +15,9 @@ typedef void (*BINTREE_MANGLE_(failure_handler))(const char* description_,BINTRE
 //
 
 BINTREE_LKG_ int BINTREE_MANGLE_(avl_validate)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_);
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_);
 BINTREE_LKG_ int BINTREE_MANGLE_(rb_validate)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_);
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_);
 
 #include "bintree_impl_end.h"
 

@@ -9,8 +9,6 @@
 #include <stddef.h>
 
 #define BINTREE_PREFIX test_tree_
-#define BINTREE_TRAITS_PARAM
-#define BINTREE_TRAITS_ARG
 
 //
 // test node base

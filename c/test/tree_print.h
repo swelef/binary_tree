@@ -15,9 +15,9 @@
 //
 
 BINTREE_LKG_ void BINTREE_MANGLE_(avl_print)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,FILE* file_);
+        BINTREE_TRPAR_ BINTREE_POINTER root_,FILE* file_);
 BINTREE_LKG_ void BINTREE_MANGLE_(rb_print)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,FILE* file_);
+        BINTREE_TRPAR_ BINTREE_POINTER root_,FILE* file_);
 
 #include "bintree_impl_end.h"
 

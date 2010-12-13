@@ -23,16 +23,16 @@
 #define BINTREE_BODY_NEXT_(c_) \
     BINTREE_PTRTYPE_(c_) tmp_ = BINTREE_TOPOLOGY_(c_,RIGHT)(node_); \
     if(tmp_==BINTREE_NULL){ \
-        return BINTREE_FN_(c_,first_right_parent)(BINTREE_TRAITS_ARG node_); \
+        return BINTREE_FN_(c_,first_right_parent)(BINTREE_TRARG_ node_); \
     } \
-    return BINTREE_FN_(c_,leftmost_child)(BINTREE_TRAITS_ARG tmp_)
+    return BINTREE_FN_(c_,leftmost_child)(BINTREE_TRARG_ tmp_)
 
 #define BINTREE_BODY_PREV_(c_) \
     BINTREE_PTRTYPE_(c_) tmp_ = BINTREE_TOPOLOGY_(c_,LEFT)(node_); \
     if(tmp_==BINTREE_NULL){ \
-        return BINTREE_FN_(c_,first_left_parent)(BINTREE_TRAITS_ARG node_); \
+        return BINTREE_FN_(c_,first_left_parent)(BINTREE_TRARG_ node_); \
     } \
-    return BINTREE_FN_(c_,rightmost_child)(BINTREE_TRAITS_ARG tmp_)
+    return BINTREE_FN_(c_,rightmost_child)(BINTREE_TRARG_ tmp_)
 
 // ----------------------------------------------------------------------------
 // non-const functions
@@ -41,25 +41,25 @@
 #if defined(BINTREE_POINTER)
 
 BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(begin)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_)
+        BINTREE_TRPAR_ BINTREE_POINTER root_)
 {
     BINTREE_BODY_BEGIN_(_);
 }
 
 BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(end)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_)
+        BINTREE_TRPAR_ BINTREE_POINTER root_)
 {
     BINTREE_BODY_END_(_);
 }
 
 BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(next)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_)
+        BINTREE_TRPAR_ BINTREE_POINTER node_)
 {
     BINTREE_BODY_NEXT_(_);
 }
 
 BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(prev)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_)
+        BINTREE_TRPAR_ BINTREE_POINTER node_)
 {
     BINTREE_BODY_PREV_(_);
 }
@@ -73,25 +73,25 @@ BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(prev)(
 #if defined(BINTREE_CONST_POINTER)
 
 BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(cbegin)(
-        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER root_)
+        BINTREE_TRPAR_ BINTREE_CONST_POINTER root_)
 {
     BINTREE_BODY_BEGIN_(_C);
 }
 
 BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(cend)(
-        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER root_)
+        BINTREE_TRPAR_ BINTREE_CONST_POINTER root_)
 {
     BINTREE_BODY_END_(_C);
 }
 
 BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(cnext)(
-        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER node_)
+        BINTREE_TRPAR_ BINTREE_CONST_POINTER node_)
 {
     BINTREE_BODY_NEXT_(_C);
 }
 
 BINTREE_LKG_ BINTREE_CONST_POINTER BINTREE_MANGLE_(cprev)(
-        BINTREE_TRAITS_PARAM BINTREE_CONST_POINTER node_)
+        BINTREE_TRPAR_ BINTREE_CONST_POINTER node_)
 {
     BINTREE_BODY_PREV_(_C);
 }

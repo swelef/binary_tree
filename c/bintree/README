@@ -66,8 +66,6 @@
     } mymapnode;
     // basic BINTREE definitions
     #define BINTREE_PREFIX mytree_
-    #define BINTREE_TRAITS_PARAM
-    #define BINTREE_TRAITS_ARG
     // topology definitions
     #define BINTREE_POINTER mynode*
     #define BINTREE_NULL NULL
@@ -94,8 +92,6 @@
     #define BINTREE_CONST_KEY_TYPE const int
     #define BINTREE_KEY(n) (((mymapnode*)(n))->key)
     #define BINTREE_COMPARE(k1,k2) ((k1)<(k2))
-    #define BINTREE_COMPARE_PARAM
-    #define BINTREE_COMPARE_ARG
     // include bintree/avltree.h
     #include "bintree/avltree.h"
 

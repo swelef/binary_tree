@@ -79,7 +79,7 @@ typedef struct BINTREE_MANGLE_(pos_type){
 
 // initialize the links in root
 BINTREE_LKG_ void BINTREE_MANGLE_(init)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_);
+        BINTREE_TRPAR_ BINTREE_POINTER root_);
 
 #endif // defined(BINTREE_POINTER)
 

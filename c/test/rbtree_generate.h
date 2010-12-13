@@ -29,14 +29,14 @@
 typedef struct BINTREE_MANGLE_(rb_generate) BINTREE_MANGLE_(rb_generate);
 
 BINTREE_LKG_ BINTREE_MANGLE_(rb_generate)* BINTREE_MANGLE_(rb_generate_alloc)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,STORAGE_ITERATOR storage_begin_,STORAGE_ITERATOR storage_end_);
+        BINTREE_TRPAR_ BINTREE_POINTER root_,STORAGE_ITERATOR storage_begin_,STORAGE_ITERATOR storage_end_);
 BINTREE_LKG_ void BINTREE_MANGLE_(rb_generate_free)(
-        BINTREE_TRAITS_PARAM BINTREE_MANGLE_(rb_generate)* generate_);
+        BINTREE_TRPAR_ BINTREE_MANGLE_(rb_generate)* generate_);
 
 BINTREE_LKG_ void BINTREE_MANGLE_(rb_generate_first)(
-        BINTREE_TRAITS_PARAM BINTREE_MANGLE_(rb_generate)* generate_);
+        BINTREE_TRPAR_ BINTREE_MANGLE_(rb_generate)* generate_);
 BINTREE_LKG_ int BINTREE_MANGLE_(rb_generate_next)(
-        BINTREE_TRAITS_PARAM BINTREE_MANGLE_(rb_generate)* generate_);
+        BINTREE_TRPAR_ BINTREE_MANGLE_(rb_generate)* generate_);
 
 #include "bintree_impl_end.h"
 

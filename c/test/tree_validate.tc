@@ -13,7 +13,7 @@ static void BINTREE_MANGLE_(failure_handler_ignore_)(const char* description_,BI
 }
 
 static size_t BINTREE_MANGLE_(avl_validate_depth_)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_)
 {
     size_t d_ = 0u;
     int odd_ = 0;
@@ -40,7 +40,7 @@ static size_t BINTREE_MANGLE_(avl_validate_depth_)(
 }
 
 static int BINTREE_MANGLE_(avl_validate_subtree_)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER top_,BINTREE_POINTER parent_,
+        BINTREE_TRPAR_ BINTREE_POINTER top_,BINTREE_POINTER parent_,
         size_t depth_,BINTREE_MANGLE_(failure_handler) handler_)
 {
     if(depth_==0){
@@ -68,16 +68,16 @@ static int BINTREE_MANGLE_(avl_validate_subtree_)(
         return 0;
     }
     int lret_ = BINTREE_MANGLE_(avl_validate_subtree_)(
-            BINTREE_TRAITS_ARG BINTREE_LEFT(top_),top_,
+            BINTREE_TRARG_ BINTREE_LEFT(top_),top_,
             depth_-((bal_==BINTREE_RIGHT_HEAVY) ? 2u : 1u),handler_);
     int rret_ = BINTREE_MANGLE_(avl_validate_subtree_)(
-            BINTREE_TRAITS_ARG BINTREE_RIGHT(top_),top_,
+            BINTREE_TRARG_ BINTREE_RIGHT(top_),top_,
             depth_-((bal_==BINTREE_LEFT_HEAVY) ? 2u : 1u),handler_);
     return lret_&&rret_;
 }
 
 BINTREE_LKG_ int BINTREE_MANGLE_(avl_validate)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_)
 {
     if(handler_==NULL){
         handler_ = BINTREE_MANGLE_(failure_handler_ignore_);
@@ -86,13 +86,13 @@ BINTREE_LKG_ int BINTREE_MANGLE_(avl_validate)(
         return BINTREE_PARENT(root_)==root_ && BINTREE_RIGHT(root_)==root_;
     }
     size_t depth_ = BINTREE_MANGLE_(avl_validate_depth_)(
-            BINTREE_TRAITS_ARG root_,handler_);
+            BINTREE_TRARG_ root_,handler_);
     if(depth_==0u){
         return 0;
     }
 
     int ret_ = BINTREE_MANGLE_(avl_validate_subtree_)(
-            BINTREE_TRAITS_ARG BINTREE_LEFT(root_),root_,depth_,handler_);
+            BINTREE_TRARG_ BINTREE_LEFT(root_),root_,depth_,handler_);
     if(!ret_){
         return ret_;
     }
@@ -109,7 +109,7 @@ BINTREE_LKG_ int BINTREE_MANGLE_(avl_validate)(
 }
 
 static size_t BINTREE_MANGLE_(rb_validate_depth_)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_)
 {
     size_t d_ = 0u;
     int odd_ = 0;
@@ -136,7 +136,7 @@ static size_t BINTREE_MANGLE_(rb_validate_depth_)(
 }
 
 static int BINTREE_MANGLE_(rb_validate_subtree_)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER top_,BINTREE_POINTER parent_,
+        BINTREE_TRPAR_ BINTREE_POINTER top_,BINTREE_POINTER parent_,
         size_t depth_,int red_parent_,BINTREE_MANGLE_(failure_handler) handler_)
 {
     if(top_==0){
@@ -169,14 +169,14 @@ static int BINTREE_MANGLE_(rb_validate_subtree_)(
         --depth_;
     }
     int lret_ = BINTREE_MANGLE_(rb_validate_subtree_)(
-            BINTREE_TRAITS_ARG BINTREE_LEFT(top_),top_,depth_,is_red_,handler_);
+            BINTREE_TRARG_ BINTREE_LEFT(top_),top_,depth_,is_red_,handler_);
     int rret_ = BINTREE_MANGLE_(rb_validate_subtree_)(
-            BINTREE_TRAITS_ARG BINTREE_RIGHT(top_),top_,depth_,is_red_,handler_);
+            BINTREE_TRARG_ BINTREE_RIGHT(top_),top_,depth_,is_red_,handler_);
     return lret_&&rret_;
 }
 
 BINTREE_LKG_ int BINTREE_MANGLE_(rb_validate)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_MANGLE_(failure_handler) handler_)
 {
     if(handler_==NULL){
         handler_ = BINTREE_MANGLE_(failure_handler_ignore_);
@@ -185,13 +185,13 @@ BINTREE_LKG_ int BINTREE_MANGLE_(rb_validate)(
         return BINTREE_PARENT(root_)==root_ && BINTREE_RIGHT(root_)==root_;
     }
     size_t depth_ = BINTREE_MANGLE_(rb_validate_depth_)(
-            BINTREE_TRAITS_ARG root_,handler_);
+            BINTREE_TRARG_ root_,handler_);
     if(depth_==0u){
         return 0;
     }
 
     int ret_ = BINTREE_MANGLE_(rb_validate_subtree_)(
-            BINTREE_TRAITS_ARG BINTREE_LEFT(root_),root_,depth_,1,handler_);
+            BINTREE_TRARG_ BINTREE_LEFT(root_),root_,depth_,1,handler_);
     if(!ret_){
         return ret_;
     }

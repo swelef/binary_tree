@@ -43,47 +43,47 @@
 
 // replace left child, new child exists -- set its parent
 BINTREE_LKG_ void BINTREE_MANGLE_(replace_left)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_,BINTREE_POINTER left_);
+        BINTREE_TRPAR_ BINTREE_POINTER node_,BINTREE_POINTER left_);
 // replace right child, new child exists -- set its parent
 BINTREE_LKG_ void BINTREE_MANGLE_(replace_right)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_,BINTREE_POINTER right_);
+        BINTREE_TRPAR_ BINTREE_POINTER node_,BINTREE_POINTER right_);
 // replace left child, set child's parent if child exists
 BINTREE_LKG_ void BINTREE_MANGLE_(replace_left_test)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_,BINTREE_POINTER left_);
+        BINTREE_TRPAR_ BINTREE_POINTER node_,BINTREE_POINTER left_);
 // replace right child, set child's parent if child exists
 BINTREE_LKG_ void BINTREE_MANGLE_(replace_right_test)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_,BINTREE_POINTER right_);
+        BINTREE_TRPAR_ BINTREE_POINTER node_,BINTREE_POINTER right_);
 // replace left child, move the old child to new left's right if exists
 BINTREE_LKG_ void BINTREE_MANGLE_(replace_left_move_child_test)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_,BINTREE_POINTER left_);
+        BINTREE_TRPAR_ BINTREE_POINTER node_,BINTREE_POINTER left_);
 // replace right child, move the old child to new right's left if exists
 BINTREE_LKG_ void BINTREE_MANGLE_(replace_right_move_child_test)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_,BINTREE_POINTER right_);
+        BINTREE_TRPAR_ BINTREE_POINTER node_,BINTREE_POINTER right_);
 // clear children
 BINTREE_LKG_ void BINTREE_MANGLE_(clear_children)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_);
+        BINTREE_TRPAR_ BINTREE_POINTER node_);
 // make left leaf, i.e. replace left child and set its children to BINTREE_NULL
 BINTREE_LKG_ void BINTREE_MANGLE_(make_left_leaf)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_,BINTREE_POINTER leaf_);
+        BINTREE_TRPAR_ BINTREE_POINTER node_,BINTREE_POINTER leaf_);
 // make right leaf, i.e. replace right child and set its children to BINTREE_NULL
 BINTREE_LKG_ void BINTREE_MANGLE_(make_right_leaf)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_,BINTREE_POINTER leaf_);
+        BINTREE_TRPAR_ BINTREE_POINTER node_,BINTREE_POINTER leaf_);
 // remove leaf, update front and back if necessary, return parent
 BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(remove_leaf_update_ends)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER leaf_);
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_POINTER leaf_);
 // replace both left and right moving node's old children to new positions
 BINTREE_LKG_ void BINTREE_MANGLE_(replace_both_move_children_test)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_,
+        BINTREE_TRPAR_ BINTREE_POINTER node_,
         BINTREE_POINTER left_,BINTREE_POINTER right_);
 // replace child by a new one, return parent
 BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(replace_child)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER old_,BINTREE_POINTER new_);
+        BINTREE_TRPAR_ BINTREE_POINTER old_,BINTREE_POINTER new_);
 // rotate left, middle is known not to exist
 BINTREE_LKG_ void BINTREE_MANGLE_(rotate_left)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_,BINTREE_POINTER right_);
+        BINTREE_TRPAR_ BINTREE_POINTER node_,BINTREE_POINTER right_);
 // rotate right, middle is known not to exist
 BINTREE_LKG_ void BINTREE_MANGLE_(rotate_right)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER node_,BINTREE_POINTER left_);
+        BINTREE_TRPAR_ BINTREE_POINTER node_,BINTREE_POINTER left_);
 
 #endif // defined(BINTREE_POINTER)
 

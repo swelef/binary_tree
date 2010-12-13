@@ -13,7 +13,7 @@
 
 // erase fixup
 static void BINTREE_MANGLE_(rb_erase_fixup)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER node_)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_POINTER node_)
 {
     BINTREE_POINTER child_ = BINTREE_NULL;
     while(node_!=root_){
@@ -23,12 +23,12 @@ static void BINTREE_MANGLE_(rb_erase_fixup)(
             if(BINTREE_COLOR(otherc_)==BINTREE_RED_COLOR){
                 BINTREE_SET_COLOR(otherc_,BINTREE_BLACK_COLOR);
                 BINTREE_SET_COLOR(node_,BINTREE_RED_COLOR);
-                BINTREE_FN_(_,rotate_left)(BINTREE_TRAITS_ARG node_,otherc_);
+                BINTREE_FN_(_,rotate_left)(BINTREE_TRARG_ node_,otherc_);
                 otherc_ = BINTREE_RIGHT(node_);
             }
             BINTREE_POINTER fargc_ = BINTREE_RIGHT(otherc_);
             if((fargc_!=BINTREE_NULL)&&(BINTREE_COLOR(fargc_)==BINTREE_RED_COLOR)){
-                BINTREE_FN_(_,rotate_left)(BINTREE_TRAITS_ARG node_,otherc_);
+                BINTREE_FN_(_,rotate_left)(BINTREE_TRARG_ node_,otherc_);
                 BINTREE_SET_COLOR(otherc_,BINTREE_COLOR(node_));
                 BINTREE_SET_COLOR(node_,BINTREE_BLACK_COLOR);
                 BINTREE_SET_COLOR(fargc_,BINTREE_BLACK_COLOR);
@@ -36,8 +36,8 @@ static void BINTREE_MANGLE_(rb_erase_fixup)(
             }
             BINTREE_POINTER neargc_ = BINTREE_LEFT(otherc_);
             if((neargc_!=BINTREE_NULL)&&(BINTREE_COLOR(neargc_)==BINTREE_RED_COLOR)){
-                BINTREE_FN_(_,replace_child)(BINTREE_TRAITS_ARG node_,neargc_);
-                BINTREE_FN_(_,replace_both_move_children_test)(BINTREE_TRAITS_ARG neargc_,node_,otherc_);
+                BINTREE_FN_(_,replace_child)(BINTREE_TRARG_ node_,neargc_);
+                BINTREE_FN_(_,replace_both_move_children_test)(BINTREE_TRARG_ neargc_,node_,otherc_);
                 BINTREE_SET_COLOR(neargc_,BINTREE_COLOR(node_));
                 BINTREE_SET_COLOR(node_,BINTREE_BLACK_COLOR);
                 return;
@@ -51,12 +51,12 @@ static void BINTREE_MANGLE_(rb_erase_fixup)(
             if(BINTREE_COLOR(otherc_)==BINTREE_RED_COLOR){
                 BINTREE_SET_COLOR(otherc_,BINTREE_BLACK_COLOR);
                 BINTREE_SET_COLOR(node_,BINTREE_RED_COLOR);
-                BINTREE_FN_(_,rotate_right)(BINTREE_TRAITS_ARG node_,otherc_);
+                BINTREE_FN_(_,rotate_right)(BINTREE_TRARG_ node_,otherc_);
                 otherc_ = BINTREE_LEFT(node_);
             }
             BINTREE_POINTER fargc_ = BINTREE_LEFT(otherc_);
             if((fargc_!=BINTREE_NULL)&&(BINTREE_COLOR(fargc_)==BINTREE_RED_COLOR)){
-                BINTREE_FN_(_,rotate_right)(BINTREE_TRAITS_ARG node_,otherc_);
+                BINTREE_FN_(_,rotate_right)(BINTREE_TRARG_ node_,otherc_);
                 BINTREE_SET_COLOR(otherc_,BINTREE_COLOR(node_));
                 BINTREE_SET_COLOR(node_,BINTREE_BLACK_COLOR);
                 BINTREE_SET_COLOR(fargc_,BINTREE_BLACK_COLOR);
@@ -64,8 +64,8 @@ static void BINTREE_MANGLE_(rb_erase_fixup)(
             }
             BINTREE_POINTER neargc_ = BINTREE_RIGHT(otherc_);
             if((neargc_!=BINTREE_NULL)&&(BINTREE_COLOR(neargc_)==BINTREE_RED_COLOR)){
-                BINTREE_FN_(_,replace_child)(BINTREE_TRAITS_ARG node_,neargc_);
-                BINTREE_FN_(_,replace_both_move_children_test)(BINTREE_TRAITS_ARG neargc_,otherc_,node_);
+                BINTREE_FN_(_,replace_child)(BINTREE_TRARG_ node_,neargc_);
+                BINTREE_FN_(_,replace_both_move_children_test)(BINTREE_TRARG_ neargc_,otherc_,node_);
                 BINTREE_SET_COLOR(neargc_,BINTREE_COLOR(node_));
                 BINTREE_SET_COLOR(node_,BINTREE_BLACK_COLOR);
                 return;
@@ -83,26 +83,26 @@ static void BINTREE_MANGLE_(rb_erase_fixup)(
 
 // erase node with right(node)==BINTREE_NULL (pre: node_!=front && node_!=back)
 static void BINTREE_MANGLE_(rb_erase_noright)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER node_)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_POINTER node_)
 {
     BINTREE_POINTER left_ = BINTREE_LEFT(node_);
     if(left_==BINTREE_NULL){
-        BINTREE_POINTER parent_ = BINTREE_FN_(_,remove_leaf_update_ends)(BINTREE_TRAITS_ARG root_,node_);
+        BINTREE_POINTER parent_ = BINTREE_FN_(_,remove_leaf_update_ends)(BINTREE_TRARG_ root_,node_);
         if((parent_!=root_)&&(BINTREE_COLOR(node_)!=BINTREE_RED_COLOR)){
-            BINTREE_FN_(_,rb_erase_fixup)(BINTREE_TRAITS_ARG root_,parent_);
+            BINTREE_FN_(_,rb_erase_fixup)(BINTREE_TRARG_ root_,parent_);
         }
     }else{
-        if(BINTREE_FN_(_,back)(BINTREE_TRAITS_ARG root_)==node_){
-            BINTREE_FN_(_,set_back)(BINTREE_TRAITS_ARG root_,left_);
+        if(BINTREE_FN_(_,back)(BINTREE_TRARG_ root_)==node_){
+            BINTREE_FN_(_,set_back)(BINTREE_TRARG_ root_,left_);
         }
-        BINTREE_FN_(_,replace_child)(BINTREE_TRAITS_ARG node_,left_);
+        BINTREE_FN_(_,replace_child)(BINTREE_TRARG_ node_,left_);
         BINTREE_SET_COLOR(left_,BINTREE_BLACK_COLOR);
     }
 }
 
 // insert fixup
 static void BINTREE_MANGLE_(rb_insert_fixup)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER node_,
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_POINTER node_,
         BINTREE_POINTER child_)
 {
     while(BINTREE_COLOR(node_)==BINTREE_RED_COLOR){
@@ -112,10 +112,10 @@ static void BINTREE_MANGLE_(rb_insert_fixup)(
             sibling_ = BINTREE_RIGHT(parent_);
             if((sibling_==BINTREE_NULL)||(BINTREE_COLOR(sibling_)!=BINTREE_RED_COLOR)){
                 if(child_==BINTREE_RIGHT(node_)){
-                    BINTREE_FN_(_,rotate_left)(BINTREE_TRAITS_ARG node_,child_);
+                    BINTREE_FN_(_,rotate_left)(BINTREE_TRARG_ node_,child_);
                     node_ = child_;
                 }
-                BINTREE_FN_(_,rotate_right)(BINTREE_TRAITS_ARG parent_,node_);
+                BINTREE_FN_(_,rotate_right)(BINTREE_TRARG_ parent_,node_);
                 BINTREE_SET_COLOR(parent_,BINTREE_RED_COLOR);
                 BINTREE_SET_COLOR(node_,BINTREE_BLACK_COLOR);
                 return;
@@ -123,10 +123,10 @@ static void BINTREE_MANGLE_(rb_insert_fixup)(
         }else{
             if((sibling_==BINTREE_NULL)||(BINTREE_COLOR(sibling_)!=BINTREE_RED_COLOR)){
                 if(child_==BINTREE_LEFT(node_)){
-                    BINTREE_FN_(_,rotate_right)(BINTREE_TRAITS_ARG node_,child_);
+                    BINTREE_FN_(_,rotate_right)(BINTREE_TRARG_ node_,child_);
                     node_ = child_;
                 }
-                BINTREE_FN_(_,rotate_left)(BINTREE_TRAITS_ARG parent_,node_);
+                BINTREE_FN_(_,rotate_left)(BINTREE_TRARG_ parent_,node_);
                 BINTREE_SET_COLOR(parent_,BINTREE_RED_COLOR);
                 BINTREE_SET_COLOR(node_,BINTREE_BLACK_COLOR);
                 return;
@@ -148,60 +148,60 @@ static void BINTREE_MANGLE_(rb_insert_fixup)(
 //
 
 BINTREE_LKG_ void BINTREE_MANGLE_(rb_insert)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER node_,
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_POINTER node_,
         BINTREE_MANGLE_(pos_type) pos_)
 {
     BINTREE_POINTER parent_ = pos_.pt_node;
     BINTREE_SET_COLOR(node_,BINTREE_RED_COLOR);
     if(pos_.pt_left){
-        BINTREE_FN_(_,make_left_leaf)(BINTREE_TRAITS_ARG parent_,node_);
-        if(parent_==BINTREE_FN_(_,front)(BINTREE_TRAITS_ARG root_)){
-            BINTREE_FN_(_,set_front)(BINTREE_TRAITS_ARG root_,node_);
+        BINTREE_FN_(_,make_left_leaf)(BINTREE_TRARG_ parent_,node_);
+        if(parent_==BINTREE_FN_(_,front)(BINTREE_TRARG_ root_)){
+            BINTREE_FN_(_,set_front)(BINTREE_TRARG_ root_,node_);
             if(parent_==root_){
                 BINTREE_SET_COLOR(node_,BINTREE_BLACK_COLOR);
-                BINTREE_FN_(_,set_back)(BINTREE_TRAITS_ARG root_,node_);
+                BINTREE_FN_(_,set_back)(BINTREE_TRARG_ root_,node_);
                 return;
             }
        }
     }else{
-       BINTREE_FN_(_,make_right_leaf)(BINTREE_TRAITS_ARG parent_,node_);
-       if(parent_==BINTREE_FN_(_,back)(BINTREE_TRAITS_ARG root_)){
-           BINTREE_FN_(_,set_back)(BINTREE_TRAITS_ARG root_,node_);
+       BINTREE_FN_(_,make_right_leaf)(BINTREE_TRARG_ parent_,node_);
+       if(parent_==BINTREE_FN_(_,back)(BINTREE_TRARG_ root_)){
+           BINTREE_FN_(_,set_back)(BINTREE_TRARG_ root_,node_);
        }
     }
-    BINTREE_FN_(_,rb_insert_fixup)(BINTREE_TRAITS_ARG root_,parent_,node_);
+    BINTREE_FN_(_,rb_insert_fixup)(BINTREE_TRARG_ root_,parent_,node_);
 }
 
 BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(rb_erase)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER node_)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_POINTER node_)
 {
     BINTREE_POINTER right_ = BINTREE_RIGHT(node_);
     if(right_==BINTREE_NULL){
-        BINTREE_POINTER ret_ = BINTREE_FN_(_,first_right_parent)(BINTREE_TRAITS_ARG node_);
-        BINTREE_FN_(_,rb_erase_noright)(BINTREE_TRAITS_ARG root_,node_);
+        BINTREE_POINTER ret_ = BINTREE_FN_(_,first_right_parent)(BINTREE_TRARG_ node_);
+        BINTREE_FN_(_,rb_erase_noright)(BINTREE_TRARG_ root_,node_);
         return ret_;
     }
-    BINTREE_POINTER replacement_ = BINTREE_FN_(_,leftmost_child)(BINTREE_TRAITS_ARG right_);
+    BINTREE_POINTER replacement_ = BINTREE_FN_(_,leftmost_child)(BINTREE_TRARG_ right_);
     BINTREE_POINTER replright_ = BINTREE_RIGHT(replacement_);
     BINTREE_POINTER parent_ = BINTREE_PARENT(replacement_);
     BINTREE_COLOR_TYPE replcolor_ = BINTREE_COLOR(replacement_);
     BINTREE_SET_COLOR(replacement_,BINTREE_COLOR(node_));
-    BINTREE_FN_(_,replace_left_test)(BINTREE_TRAITS_ARG replacement_,BINTREE_LEFT(node_));
-    BINTREE_FN_(_,replace_child)(BINTREE_TRAITS_ARG node_,replacement_);
+    BINTREE_FN_(_,replace_left_test)(BINTREE_TRARG_ replacement_,BINTREE_LEFT(node_));
+    BINTREE_FN_(_,replace_child)(BINTREE_TRARG_ node_,replacement_);
     if(replacement_==right_){
-        if(BINTREE_FN_(_,front)(BINTREE_TRAITS_ARG root_)==node_){
-            BINTREE_FN_(_,set_front)(BINTREE_TRAITS_ARG root_,right_);
+        if(BINTREE_FN_(_,front)(BINTREE_TRARG_ root_)==node_){
+            BINTREE_FN_(_,set_front)(BINTREE_TRARG_ root_,right_);
         }
         parent_ = right_;
     }else{
-        BINTREE_FN_(_,replace_right)(BINTREE_TRAITS_ARG replacement_,right_);
-        BINTREE_FN_(_,replace_left_test)(BINTREE_TRAITS_ARG parent_,replright_);
+        BINTREE_FN_(_,replace_right)(BINTREE_TRARG_ replacement_,right_);
+        BINTREE_FN_(_,replace_left_test)(BINTREE_TRARG_ parent_,replright_);
     }
     if(replright_!=BINTREE_NULL){
         BINTREE_SET_COLOR(replright_,BINTREE_BLACK_COLOR);
     }else{
         if(replcolor_!=BINTREE_RED_COLOR){
-            BINTREE_FN_(_,rb_erase_fixup)(BINTREE_TRAITS_ARG root_,parent_);
+            BINTREE_FN_(_,rb_erase_fixup)(BINTREE_TRARG_ root_,parent_);
         }
     }
     return replacement_;

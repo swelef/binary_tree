@@ -26,11 +26,11 @@
 
 // insert a node at specified position
 BINTREE_LKG_ void BINTREE_MANGLE_(avl_insert)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER node_,
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_POINTER node_,
         BINTREE_MANGLE_(pos_type) pos_);
 // erase a node
 BINTREE_LKG_ BINTREE_POINTER BINTREE_MANGLE_(avl_erase)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,BINTREE_POINTER node_);
+        BINTREE_TRPAR_ BINTREE_POINTER root_,BINTREE_POINTER node_);
 
 #endif // defined(BINTREE_POINTER)
 

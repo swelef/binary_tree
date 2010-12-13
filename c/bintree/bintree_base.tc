@@ -15,11 +15,11 @@
 //
 
 BINTREE_LKG_ void BINTREE_MANGLE_(init)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_)
+        BINTREE_TRPAR_ BINTREE_POINTER root_)
 {
-    BINTREE_FN_(_,set_top)(BINTREE_TRAITS_ARG root_,BINTREE_NULL);
-    BINTREE_FN_(_,set_front)(BINTREE_TRAITS_ARG root_,root_);
-    BINTREE_FN_(_,set_back)(BINTREE_TRAITS_ARG root_,root_);
+    BINTREE_FN_(_,set_top)(BINTREE_TRARG_ root_,BINTREE_NULL);
+    BINTREE_FN_(_,set_front)(BINTREE_TRARG_ root_,root_);
+    BINTREE_FN_(_,set_back)(BINTREE_TRARG_ root_,root_);
         //< this line seems to be unnecessary,
         //  but it avoids UB when copying the tree
 }

@@ -19,47 +19,47 @@ static void BINTREE_MANGLE_(print_spaces_)(size_t count_,FILE* file_){
 }
 
 static void BINTREE_MANGLE_(avl_print_subtree_)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER top_,size_t depth_,FILE* file_)
+        BINTREE_TRPAR_ BINTREE_POINTER top_,size_t depth_,FILE* file_)
 {
     if(top_){
         BINTREE_MANGLE_(avl_print_subtree_)(
-                BINTREE_TRAITS_ARG BINTREE_LEFT(top_),depth_+1u,file_);
+                BINTREE_TRARG_ BINTREE_LEFT(top_),depth_+1u,file_);
         BINTREE_BALANCE_TYPE bal_ = BINTREE_BALANCE(top_);
         char c_ = (bal_==BINTREE_BALANCED) ? 'B' : (bal_==BINTREE_LEFT_HEAVY) ? 'L' : 'R';
         BINTREE_MANGLE_(print_spaces_)(depth_*4u,file_);
         fprintf(file_,"%c\n",c_);
         BINTREE_MANGLE_(avl_print_subtree_)(
-                BINTREE_TRAITS_ARG BINTREE_RIGHT(top_),depth_+1u,file_);
+                BINTREE_TRARG_ BINTREE_RIGHT(top_),depth_+1u,file_);
     }
 }
 
 BINTREE_LKG_ void BINTREE_MANGLE_(avl_print)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,FILE* file_)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,FILE* file_)
 {
     BINTREE_MANGLE_(avl_print_subtree_)(
-            BINTREE_TRAITS_ARG BINTREE_LEFT(root_),0u,file_);
+            BINTREE_TRARG_ BINTREE_LEFT(root_),0u,file_);
 }
 
 static void BINTREE_MANGLE_(rb_print_subtree_)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER top_,size_t depth_,FILE* file_)
+        BINTREE_TRPAR_ BINTREE_POINTER top_,size_t depth_,FILE* file_)
 {
     if(top_){
         BINTREE_MANGLE_(rb_print_subtree_)(
-                BINTREE_TRAITS_ARG BINTREE_LEFT(top_),depth_+1u,file_);
+                BINTREE_TRARG_ BINTREE_LEFT(top_),depth_+1u,file_);
         BINTREE_COLOR_TYPE col_ = BINTREE_COLOR(top_);
         char c_ = (col_==BINTREE_RED_COLOR) ? 'R' : 'B';
         BINTREE_MANGLE_(print_spaces_)(depth_*4u,file_);
         fprintf(file_,"%c\n",c_);
         BINTREE_MANGLE_(avl_print_subtree_)(
-                BINTREE_TRAITS_ARG BINTREE_RIGHT(top_),depth_+1u,file_);
+                BINTREE_TRARG_ BINTREE_RIGHT(top_),depth_+1u,file_);
     }
 }
 
 BINTREE_LKG_ void BINTREE_MANGLE_(rb_print)(
-        BINTREE_TRAITS_PARAM BINTREE_POINTER root_,FILE* file_)
+        BINTREE_TRPAR_ BINTREE_POINTER root_,FILE* file_)
 {
     BINTREE_MANGLE_(rb_print_subtree_)(
-            BINTREE_TRAITS_ARG BINTREE_LEFT(root_),0u,file_);
+            BINTREE_TRARG_ BINTREE_LEFT(root_),0u,file_);
 }
 
 #include "bintree_impl_end.h"
